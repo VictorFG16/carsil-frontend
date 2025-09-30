@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../services/product.service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Navbar } from '../../navbar/navbar';
@@ -71,10 +71,10 @@ export class AddProduct implements OnInit {
   ];
 
   constructor(
-    private productService: ProductService,
-    private router: Router,
-    private dateUtils: DateUtilsService,
-    private moduleService: ModuleService
+    private  readonly productService: ProductService,
+    private  readonly router: Router,
+    private  readonly dateUtils: DateUtilsService,
+    private readonly moduleService: ModuleService
   ) {}
 
   ngOnInit() {

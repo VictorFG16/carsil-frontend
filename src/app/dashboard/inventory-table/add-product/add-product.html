@@ -304,16 +304,16 @@
         <div *ngIf="activeSizeSection === 'kids'">
           <h6 class="text-center mb-3">Tallas de Niños</h6>
           <div *ngFor="let size of kidsSizes" class="mb-2 d-flex align-items-center">
-            <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+            <label [for]="'kids-size-' + size.name" class="me-2" style="width: 50px;">{{ size.name }}</label>
+            <input [id]="'kids-size-' + size.name" type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
           </div>
         </div>
 
         <div *ngIf="activeSizeSection === 'adult'">
           <h6 class="text-center mb-3">Tallas de Adultos</h6>
           <div *ngFor="let size of adultSizes" class="mb-2 d-flex align-items-center">
-            <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+            <label [for]="'adult-size-' + size.name" class="me-2" style="width: 50px;">{{ size.name }}</label>
+            <input [id]="'adult-size-' + size.name" type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
           </div>
         </div>
       </div>

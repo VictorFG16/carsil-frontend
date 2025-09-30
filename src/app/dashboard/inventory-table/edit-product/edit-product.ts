@@ -82,7 +82,7 @@ export class EditProduct implements OnInit {
   ];
 
   constructor(
-    private productService: ProductService,
+    private  readonly productService: ProductService,
     private router: Router,
     private route: ActivatedRoute,
     private dateUtils: DateUtilsService,
