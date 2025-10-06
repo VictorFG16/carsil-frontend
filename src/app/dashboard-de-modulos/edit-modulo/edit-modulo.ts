@@ -55,7 +55,7 @@ export class EditModulo implements OnInit {
     this.errorMessage = '';
     
     // Validar que todos los campos estén completos
-    if (!this.module.description || !this.module.numPersons || this.module.numPersons <= 0) {
+    if (!this.module.name || !this.module.numPersons || this.module.numPersons <= 0) {
       this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
       return;
     }

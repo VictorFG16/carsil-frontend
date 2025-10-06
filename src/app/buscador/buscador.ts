@@ -15,7 +15,7 @@ import { generateProductPdf } from './pdf-export-helper';
   styleUrl: './buscador.css'
 })
 export class Buscador implements OnInit, OnDestroy {
-  searchTerm: string = '';
+  searchOp: number | null = null; // 🔹 ahora el campo es numérico
   searchResults: Product[] = [];
   selectedProduct: any = null;
   isLoading: boolean = false;
@@ -29,7 +29,6 @@ export class Buscador implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private router: Router,
-    
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +44,7 @@ export class Buscador implements OnInit, OnDestroy {
   private normalizeProduct(product: any): Product {
     return {
       ...product,
+      id: product.id,
       reference: product.reference ?? 'N/A',
       brand: product.brand ?? 'N/A',
       op: product.op ?? 'N/A',
@@ -64,13 +64,10 @@ export class Buscador implements OnInit, OnDestroy {
       actualDeliveryDate: product.actualDeliveryDate ?? null,
       status: product.status ?? 'N/A',
       numPersons: product.module?.numPersons ?? 0,
-      totaLoadDays: product.module?.totaLoadDays ?? 0,
       module: {
-        id: product.module?.id ?? 0,
         name: product.module?.name ?? 'N/A',
         description: product.module?.description ?? 'N/A',
-        numPersons: product.module?.numPersons ?? 0,
-        totaLoadDays: product.module?.totaLoadDays ?? 0
+        numPersons: product.module?.numPersons ?? 0
       },
       sizeQuantities: product.sizeQuantities ?? {}
     };
@@ -82,7 +79,6 @@ export class Buscador implements OnInit, OnDestroy {
       const products = await firstValueFrom(this.productService.getProducts());
       if (products && Array.isArray(products)) {
         this.searchResults = products.slice(-5).map((p) => this.normalizeProduct(p));
-        // No seleccionar automáticamente ningún producto para que el panel derecho vacío se muestre
         this.selectedProduct = null;
         this.sizeSummary = [];
         this.totalQuantity = 0;
@@ -94,52 +90,37 @@ export class Buscador implements OnInit, OnDestroy {
     }
   }
 
+  /** 🔹 Nueva lógica de búsqueda por OP directamente en el backend */
   async searchByOP(): Promise<void> {
-    if (!this.searchTerm.trim()) {
+    if (!this.searchOp) {
       this.clearSearch();
       return;
     }
+
     try {
       this.isLoading = true;
       this.hasSearched = true;
 
-      console.log('Buscando productos...');
-      const allProducts = await firstValueFrom(this.productService.getProducts()) || [];
-      console.log('Productos obtenidos del backend:', allProducts);
+      console.log('Buscando productos por OP:', this.searchOp);
+      const products = await firstValueFrom(this.productService.searchProductsByOp(this.searchOp));
 
-      this.searchResults = allProducts
-        .filter((product: Product) => this.matchesSearchTerm(product, this.searchTerm))
-        .map((p: Product) => this.normalizeProduct(p))
-        .slice(-5);
-      console.log('Resultados filtrados:', this.searchResults);
-
-      if (this.searchResults.length > 0) {
-        const productId = this.searchResults[0].id;
-        console.log('Obteniendo detalles del producto ID:', productId);
-        const productDetails = await firstValueFrom(this.productService.getProductById(productId));
-        console.log('Detalles del producto obtenidos:', productDetails);
-        const normalized = this.normalizeProduct(productDetails);
-        console.log('Producto normalizado:', normalized);
-        this.selectProduct(normalized);
+      if (products && products.length > 0) {
+        this.searchResults = products.map((p: Product) => this.normalizeProduct(p));
+        this.selectProduct(this.searchResults[0]);
       } else {
-        console.log('No se encontraron productos para el término de búsqueda');
+        console.log('No se encontraron productos para la OP:', this.searchOp);
+        this.searchResults = [];
         this.selectedProduct = null;
         this.sizeSummary = [];
         this.totalQuantity = 0;
       }
-
     } catch (error) {
-      console.error('Error en la búsqueda:', error);
+      console.error('Error en la búsqueda por OP:', error);
       this.searchResults = [];
       this.selectedProduct = null;
     } finally {
       this.isLoading = false;
     }
-  }
-
-  private matchesSearchTerm(product: Product, term: string): boolean {
-    const searchTerm = term.toLowerCase().trim();
-    return product.op?.toLowerCase().includes(searchTerm) ?? false;
   }
 
   selectProduct(product: Product): void {
@@ -167,12 +148,8 @@ export class Buscador implements OnInit, OnDestroy {
     this.totalQuantity = this.sizeSummary.reduce((total, item) => total + item.quantity, 0);
   }
 
-  onSearchInput(): void {
-    this.searchTerm = this.searchTerm.replace(/[^0-9]/g, '');
-  }
-
   clearSearch(): void {
-    this.searchTerm = '';
+    this.searchOp = null;
     this.searchResults = [];
     this.selectedProduct = null;
     this.sizeSummary = [];
@@ -180,8 +157,8 @@ export class Buscador implements OnInit, OnDestroy {
     this.hasSearched = false;
   }
 
-  trackByProduct(index: number, product: Product): number {
-    return product.id;
+  trackByProduct(index: number, product: Product): string {
+    return product.op;
   }
 
   volverAlHome(): void {

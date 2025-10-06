@@ -4,7 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   // apiUrl = 'https://...'; en dev será http://localhost:8080 (environment.development.ts)

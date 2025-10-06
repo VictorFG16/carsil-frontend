@@ -42,6 +42,10 @@ export class ProductService {
     searchProducts(q: string) {
         return this.apiservice.get(`/products/search?q=${q}`);
     }
+    searchProductsByOp(op: number) {
+        return this.apiservice.get(`/products/by-op/${op}`);
+    }
+
     getProductsByModule(moduleId: number) {
         return this.apiservice.get(`/products/module/${moduleId}`);
     }

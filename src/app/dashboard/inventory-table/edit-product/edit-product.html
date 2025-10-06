@@ -38,6 +38,7 @@
             [class.is-invalid]="productForm.submitted && !product.referencia"
             required
             [disabled]="loading"
+            numericOnly
           />
           <div
             class="invalid-feedback"
@@ -128,6 +129,7 @@
             [class.is-invalid]="productForm.submitted && !product.op"
             required
             [disabled]="loading"
+            numericOnly
           />
           <div
             class="invalid-feedback"
@@ -149,6 +151,7 @@
             [class.is-invalid]="productForm.submitted && !product.camp"
             required
             [disabled]="loading"
+            numericOnly
           />
           <div
             class="invalid-feedback"
@@ -187,15 +190,23 @@
           <label for="talla">Talla</label>
           <button
             type="button"
-            class="btn btn-outline-secondary form-control"
+            class="form-control"
+            [ngClass]="{
+              'btn-outline-secondary': !hasSizesSelected(),
+              'btn-success': hasSizesSelected(),
+              'is-invalid': productForm.submitted && !hasSizesSelected()
+            }"
             (click)="openSizeModal()"
-            [class.is-invalid]="productForm.submitted && (!product.talla)"
           >
-            {{ product.talla ? 'Tallas seleccionadas (' + getSelectedSizesCount() + ')' : 'Seleccionar tallas' }}
+            {{
+              hasSizesSelected()
+                ? "✓ Tallas seleccionadas"
+                : "Seleccionar tallas"
+            }}
           </button>
           <div
             class="invalid-feedback"
-            *ngIf="productForm.submitted && !product.talla"
+            *ngIf="productForm.submitted && !hasSizesSelected()"
           >
             La talla es requerida
           </div>
@@ -205,14 +216,16 @@
         <div class="form-group mb-3">
           <label for="color">Precio</label>
           <input
-            type="text"
-            id="color"
+            type="number"
+            id="price"
             [(ngModel)]="product.price"
-            name="color"
+            name="price"
             class="form-control"
             [class.is-invalid]="productForm.submitted && !product.price"
             required
             [disabled]="loading"
+            placeholder="0"
+            numericOnly
           />
           <div
             class="invalid-feedback"
@@ -233,12 +246,17 @@
           <label for="module">Equipo</label>
           <button
             type="button"
-            class="btn btn-outline-secondary form-control"
+            class="form-control"
+            [ngClass]="{'btn-outline-secondary': !hasModuleSelected(),
+            'btn-success': hasModuleSelected(),
+             'is-invalid': productForm.submitted && !hasModuleSelected()}"
             (click)="openModuleModal()"
-            [class.is-invalid]="productForm.submitted && !product.module"
-            [disabled]="loading"
           >
-            {{ product.module ? 'Equipo seleccionado: ' + product.module.name : 'Seleccionar equipo' }}
+
+            {{ hasModuleSelected() 
+            ? " ✓ Equipo: " +product.module?.name
+            : "Seleccionar Equipo"
+            }}
           </button>
           <div
             class="invalid-feedback"
@@ -296,6 +314,9 @@
             required
             min="0.01"
             step="0.01"
+            placeholder="0.00"
+            numericOnly
+            [allowDecimal]="true"
           />
           <div class="invalid-feedback" *ngIf="productForm.submitted && (!product.sam || product.sam <= 0)">
             El SAM es requerido y debe ser mayor a 0
@@ -319,11 +340,15 @@
         <div class="form-group mb-3">
           <label for="cantidadProducida">Cantidad Confeccionada</label>
           <input
+            placeholder="0"
             type="number"
             id="cantidadConfeccionada"
             [(ngModel)]="product.quantityMade"
             name="cantidadProducida"
-            class="form-control">
+            class="form-control"
+            numericOnly>
+            
+            
           
            
           </div>
@@ -340,17 +365,8 @@
             [(ngModel)]="product.quantity"
             name="quantity"
             class="form-control"
-            [class.is-invalid]="productForm.submitted && !product.quantity"
-            required
-            readonly
-            [disabled]="loading"
-          />
-          <div
-            class="invalid-feedback"
-            *ngIf="productForm.submitted && !product.quantity"
-          >
-            El total es requerido
-          </div>
+            [disabled]="true">
+            
         </div>
       </div>
     <div class="buttons d-flex gap-2">
@@ -402,7 +418,7 @@
           <h6 class="text-center mb-3">Tallas de Niños</h6>
           <div *ngFor="let size of kidsSizes" class="mb-2 d-flex align-items-center">
             <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+            <input type="number"  placeholder="0" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
           </div>
         </div>
 
@@ -411,11 +427,12 @@
           <h6 class="text-center mb-3">Tallas de Adultos</h6>
           <div *ngFor="let size of adultSizes" class="mb-2 d-flex align-items-center">
             <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+            <input type="number" min="0"  placeholder="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="clearSizes()">Limpiar Tallas</button>
         <button type="button" class="btn btn-secondary" (click)="closeSizeModal()">Cancelar</button>
         <button type="button" class="btn btn-primary" (click)="saveSizes()">Guardar</button>
       </div>

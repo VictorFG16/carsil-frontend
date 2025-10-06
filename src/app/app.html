@@ -1,1 +1,19 @@
 <router-outlet></router-outlet>
+
+<div class="modal-backdrop fade show" *ngIf="showModal"></div>
+
+<div class="modal fade show"
+     tabindex="-1"
+     [style.display]="showModal ? 'block' : 'none'"
+     *ngIf="showModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4 text-center">
+      <h5>¿Quieres seguir activo?</h5>
+      <p>Has estado inactivo por un rato.</p>
+      <div class="d-flex justify-content-around mt-3">
+        <button class="btn btn-primary" (click)="continueSession()">Sí, seguir activo</button>
+        <button class="btn btn-danger" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</div>

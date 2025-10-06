@@ -16,10 +16,10 @@ export const routes: Routes = [
   { path: '', component: Login },
   { path: 'login', component: Login },
 
-  // ✅ Home protegido
+  //  Home protegido
   { path: 'home', component: Home, canActivate: [AuthGuard] },
 
-  // ✅ Todas las demás rutas protegidas
+  //  Todas las demás rutas protegidas
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'add-product', component: AddProduct, canActivate: [AuthGuard] },
   { path: 'edit-product/:id', component: EditProduct, canActivate: [AuthGuard] },

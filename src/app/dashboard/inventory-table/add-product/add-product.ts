@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../services/product.service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Navbar } from '../../navbar/navbar';
@@ -6,17 +6,20 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DateUtilsService } from '../../../services/date-utils.service';
 import { ModuleService, Module } from '../../../services/module.service';
+import { NumericOnlyDirective } from '../../../directives/numeric-only.directive';
+
+
 
 @Component({
   selector: 'app-add-product',
-  imports: [FormsModule, Navbar, CommonModule],
+  imports: [FormsModule, Navbar, CommonModule,NumericOnlyDirective],
   templateUrl: './add-product.html',
   styleUrl: './add-product.css'
 })
 export class AddProduct implements OnInit {
   product = {
     description: '',
-    price: 0,
+    price: null as number | null,
     quantity: 0,
     fechaAsignada: '',
     fechaEntrada: '',
@@ -27,7 +30,7 @@ export class AddProduct implements OnInit {
     tipo: '',
     talla: '',
     module: null as Module | null,
-    sam: 0
+    sam: null as number | null
   };
   errorMessage = '';
 
@@ -35,46 +38,36 @@ export class AddProduct implements OnInit {
   modules: Module[] = [];
   showModuleModal = false;
 
-  // Nuevas propiedades para el modal de tallas
+  // Modal de tallas
   showSizeModal = false;
   activeSizeSection: 'kids' | 'adult' = 'kids';
 
-  // Tallas para niños
+  // Tallas para niños (inicializadas con null en lugar de 0)
   kidsSizes = [
-    { name: '2', quantity: 0 },
-    { name: '4', quantity: 0 },
-    { name: '6', quantity: 0 },
-    { name: '8', quantity: 0 },
-    { name: '10', quantity: 0 },
-    { name: '12', quantity: 0 },
-    { name: '16', quantity: 0 }
+    { name: '2', quantity: null as number | null },
+    { name: '4', quantity: null as number | null },
+    { name: '6', quantity: null as number | null },
+    { name: '8', quantity: null as number | null },
+    { name: '10', quantity: null as number | null },
+    { name: '12', quantity: null as number | null },
+    { name: '16', quantity: null as number | null }
   ];
 
-  // Tallas para adultos
+  // Tallas para adultos (inicializadas con null en lugar de 0)
   adultSizes = [
-    { name: 'XS', quantity: 0 },
-    { name: 'S', quantity: 0 },
-    { name: 'M', quantity: 0 },
-    { name: 'L', quantity: 0 },
-    { name: 'XL', quantity: 0 },
-    { name: 'XXL', quantity: 0 }
-  ];
-
-  sizes = [
-    { name: 'XS', quantity: 0 },
-    { name: 'S', quantity: 0 },
-    { name: 'M', quantity: 0 },
-    { name: 'L', quantity: 0 },
-    { name: 'XL', quantity: 0 },
-    { name: 'XXL', quantity: 0 },
-    { name: 'XXXL', quantity: 0 }
+    { name: 'XS', quantity: null as number | null },
+    { name: 'S', quantity: null as number | null },
+    { name: 'M', quantity: null as number | null },
+    { name: 'L', quantity: null as number | null },
+    { name: 'XL', quantity: null as number | null },
+    { name: 'XXL', quantity: null as number | null }
   ];
 
   constructor(
-    private productService: ProductService,
-    private router: Router,
-    private dateUtils: DateUtilsService,
-    private moduleService: ModuleService
+    private readonly productService: ProductService,
+    private readonly router: Router,
+    private readonly dateUtils: DateUtilsService,
+    private readonly moduleService: ModuleService
   ) {}
 
   ngOnInit() {
@@ -105,43 +98,45 @@ export class AddProduct implements OnInit {
     this.closeModuleModal();
   }
 
-  // Método para abrir el modal de tallas
+  // Abrir modal de tallas
   openSizeModal() {
     this.showSizeModal = true;
-    this.activeSizeSection = 'kids'; // Mostrar sección de niños por defecto
+    this.activeSizeSection = 'kids';
   }
 
-  // Método para cerrar el modal
   closeSizeModal() {
     this.showSizeModal = false;
   }
 
-  // Cambiar a sección de tallas de adultos
   showAdultSizes() {
     this.activeSizeSection = 'adult';
   }
 
-  // Cambiar a sección de tallas de niños
   showKidsSizes() {
     this.activeSizeSection = 'kids';
   }
 
-  // Método para guardar las tallas seleccionadas
+  // Guardar tallas seleccionadas
   saveSizes() {
-    // Combinar tallas de niños y adultos
-    const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
-    // Filtrar tallas con cantidad > 0
-    const selectedSizes = combinedSizes.filter(size => size.quantity > 0);
+  // Combinar tallas de niños y adultos
+  const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
+  // Filtrar solo tallas con cantidad válida (>0)
+  const selectedSizes = combinedSizes.filter(size => size.quantity && size.quantity > 0);
 
-    // Calcular total quantity
-    this.product.quantity = selectedSizes.reduce((total, size) => total + size.quantity, 0);
-
-    // Serializar tallas en JSON para el campo talla
+  // Si NO hay tallas seleccionadas, limpiar todo
+  if (selectedSizes.length === 0) {
+    this.product.talla = '';
+    this.product.quantity = 0;
+  } else {
+    // Calcular el total de cantidades
+    this.product.quantity = selectedSizes.reduce((total, size) => total + (size.quantity || 0), 0);
+    // Guardar tallas como JSON
     this.product.talla = JSON.stringify(selectedSizes);
-
-    // Cerrar modal
-    this.closeSizeModal();
   }
+
+  // Cerrar modal
+  this.closeSizeModal();
+}
 
   onSubmit(form: NgForm) {
     this.errorMessage = '';
@@ -155,31 +150,29 @@ export class AddProduct implements OnInit {
       return;
     }
 
-    // Validar que las fechas sean válidas
+    // Validar fechas
     if (!this.dateUtils.isValidDate(this.product.fechaAsignada) ||
         !this.dateUtils.isValidDate(this.product.fechaEntrada)) {
       this.errorMessage = 'Las fechas ingresadas no son válidas.';
       return;
     }
 
-    // Validar que fechaEntrada no sea menor que fechaAsignada
     const fechaAsignadaDate = new Date(this.product.fechaAsignada);
     const fechaEntradaDate = new Date(this.product.fechaEntrada);
-    // fechaEntrada debe ser igual o mayor que fechaAsignada
     if (fechaEntradaDate < fechaAsignadaDate) {
       this.errorMessage = 'La fecha de entrada no puede ser menor que la fecha asignada.';
       return;
     }
 
-    // Construir sizeQuantities combinando kidsSizes y adultSizes
-    const sizeQuantities: {[key: string]: number} = {};
+    // Construir objeto sizeQuantities
+    const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
-      if (size.quantity > 0) {
+      if (size.quantity && size.quantity > 0) {
         sizeQuantities[size.name] = size.quantity;
       }
     });
     this.adultSizes.forEach(size => {
-      if (size.quantity > 0) {
+      if (size.quantity && size.quantity > 0) {
         sizeQuantities[size.name] = size.quantity;
       }
     });
@@ -196,8 +189,8 @@ export class AddProduct implements OnInit {
       campaign: this.product.camp,
       type: this.product.tipo,
       sizeQuantities: sizeQuantities,
-      size: '', // campo size puede quedar vacío o eliminarse si backend lo permite
-      module: this.product.module, // enviar el módulo seleccionado o creado
+      size: '', 
+      module: this.product.module,
       sam: this.product.sam
     };
 
@@ -212,9 +205,24 @@ export class AddProduct implements OnInit {
       }
     });
   }
+  // Limpiar todas las tallas
+clearSizes() {
+  this.kidsSizes.forEach(size => size.quantity = null);
+  this.adultSizes.forEach(size => size.quantity = null);
+  this.product.talla = '';
+  this.product.quantity = 0;
+}
+  // Método para verificar si hay tallas seleccionadas
+hasSizesSelected(): boolean {
+  return !!this.product.talla && this.product.talla.length > 0;
+}
+
+// Método para verificar si hay equipo seleccionado
+hasModuleSelected(): boolean {
+  return !!this.product.module;
+}
 
   volverAlInventario() {
     this.router.navigate(['/dashboard']);
   }
-
 }

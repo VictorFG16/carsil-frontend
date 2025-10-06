@@ -35,7 +35,7 @@ onSubmit(form: NgForm) {
 this.errorMessage = '';
 this.loading = true;
 
-if (!this.module.name || !this.module.description || this.module.numPersons <= 0) {
+if (!this.module.name || this.module.numPersons <= 0) {
   this.errorMessage = 'Por favor, complete todos los campos correctamente.';
   this.loading = false;
   return;

@@ -6,19 +6,20 @@ import { CommonModule } from '@angular/common';
 import { DateUtilsService } from '../../../services/date-utils.service';
 import { ModuleService, Module } from '../../../services/module.service';
 import { Navbar } from '../../navbar/navbar';
+import { NumericOnlyDirective } from '../../../directives/numeric-only.directive';
 
 @Component({
   selector: 'app-edit-product',
   standalone: true, 
-  imports: [FormsModule, CommonModule, Navbar],
+  imports: [FormsModule, CommonModule, Navbar , NumericOnlyDirective],
   templateUrl: './edit-product.html',
-  styleUrls: ['./edit-product.css'] 
+  styleUrls: ['./edit-product.css'] ,
 })
 export class EditProduct implements OnInit {
   product = {
     id: 0,
     description: '',
-    price: 0,
+    price: null as number | null,
     quantity: 0,
     fechaAsignada: '',
     fechaEntrada: '',
@@ -32,8 +33,8 @@ export class EditProduct implements OnInit {
     stoppageReason: '',
     status: '',
     actualDeliveryDate: '',
-    sam: 0,
-    quantityMade: 0
+    sam: null as number | null,
+    quantityMade: null as number | null
   };
   errorMessage = '';
   loading = false;
@@ -52,37 +53,33 @@ export class EditProduct implements OnInit {
     'FICHA',
     'SESGO'
   ];
-  status: string[] = [
-    'PROCESO',
-    'ASIGNADO',
-    'CONFECCION'
+  status: string[] = ['PROCESO', 'ASIGNADO', 'CONFECCION'];
 
-  ]
   showSizeModal = false;
   activeSizeSection: 'kids' | 'adult' = 'kids';
   showModuleModal = false;
 
   kidsSizes = [
-    { name: '2', quantity: 0 },
-    { name: '4', quantity: 0 },
-    { name: '6', quantity: 0 },
-    { name: '8', quantity: 0 },
-    { name: '10', quantity: 0 },
-    { name: '12', quantity: 0 },
-    { name: '16', quantity: 0 }
+    { name: '2', quantity: null as number | null },
+    { name: '4', quantity: null as number | null },
+    { name: '6', quantity: null as number | null },
+    { name: '8', quantity: null as number | null },
+    { name: '10', quantity: null as number | null },
+    { name: '12', quantity: null as number | null },
+    { name: '16', quantity: null as number | null }
   ];
 
   adultSizes = [
-    { name: 'XS', quantity: 0 },
-    { name: 'S', quantity: 0 },
-    { name: 'M', quantity: 0 },
-    { name: 'L', quantity: 0 },
-    { name: 'XL', quantity: 0 },
-    { name: 'XXL', quantity: 0 },
+    { name: 'XS', quantity: null as number | null },
+    { name: 'S', quantity: null as number | null },
+    { name: 'M', quantity: null as number | null },
+    { name: 'L', quantity: null as number | null },
+    { name: 'XL', quantity: null as number | null },
+    { name: 'XXL', quantity: null as number | null }
   ];
 
   constructor(
-    private productService: ProductService,
+    private readonly productService: ProductService,
     private router: Router,
     private route: ActivatedRoute,
     private dateUtils: DateUtilsService,
@@ -121,8 +118,8 @@ export class EditProduct implements OnInit {
   openSizeModal() {
     this.showSizeModal = true;
     this.activeSizeSection = 'kids';
-    const hasKidsSizes = this.kidsSizes.some(s => s.quantity > 0);
-    const hasAdultSizes = this.adultSizes.some(s => s.quantity > 0);
+    const hasKidsSizes = this.kidsSizes.some(s => (s.quantity ?? 0) > 0);
+    const hasAdultSizes = this.adultSizes.some(s => (s.quantity ?? 0) > 0);
     if (hasAdultSizes && !hasKidsSizes) {
       this.activeSizeSection = 'adult';
     }
@@ -142,8 +139,8 @@ export class EditProduct implements OnInit {
 
   saveSizes() {
     const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
-    const selectedSizes = combinedSizes.filter(size => size.quantity > 0);
-    this.product.quantity = selectedSizes.reduce((total, size) => total + size.quantity, 0);
+    const selectedSizes = combinedSizes.filter(size => size.quantity && size.quantity > 0);
+    this.product.quantity = selectedSizes.reduce((total, size) => total + (size.quantity || 0), 0);
     this.product.talla = JSON.stringify(selectedSizes);
     this.closeSizeModal();
   }
@@ -196,7 +193,7 @@ export class EditProduct implements OnInit {
         if (product.sizeQuantities && typeof product.sizeQuantities === 'object') {
           const sizeArray = Object.entries(product.sizeQuantities).map(([name, quantity]) => ({
             name,
-            quantity: quantity as number
+            quantity: (quantity as number) ?? null
           }));
           this.loadSizesFromData(sizeArray);
         }
@@ -221,21 +218,21 @@ export class EditProduct implements OnInit {
   }
 
   loadSizesFromData(sizeData: any[]) {
-    this.kidsSizes.forEach(size => size.quantity = 0);
-    this.adultSizes.forEach(size => size.quantity = 0);
+    this.kidsSizes.forEach(size => size.quantity = null);
+    this.adultSizes.forEach(size => size.quantity = null);
     sizeData.forEach((size: any) => {
       const kidsSize = this.kidsSizes.find(s => s.name === size.name);
       const adultSize = this.adultSizes.find(s => s.name === size.name);
-      if (kidsSize) kidsSize.quantity = size.quantity ?? 0;
-      if (adultSize) adultSize.quantity = size.quantity ?? 0;
+      if (kidsSize) kidsSize.quantity = size.quantity ?? null;
+      if (adultSize) adultSize.quantity = size.quantity ?? null;
     });
     this.updateSizeButtonText();
   }
 
   updateSizeButtonText() {
-    const hasSizes = this.kidsSizes.some(s => s.quantity > 0) || this.adultSizes.some(s => s.quantity > 0);
+    const hasSizes = this.kidsSizes.some(s => (s.quantity ?? 0) > 0) || this.adultSizes.some(s => (s.quantity ?? 0) > 0);
     if (hasSizes) {
-      const selectedSizes = [...this.kidsSizes, ...this.adultSizes].filter(s => s.quantity > 0);
+      const selectedSizes = [...this.kidsSizes, ...this.adultSizes].filter(s => (s.quantity ?? 0) > 0);
       this.product.talla = JSON.stringify(selectedSizes);
     } else {
       this.product.talla = '';
@@ -254,7 +251,7 @@ export class EditProduct implements OnInit {
       return;
     }
 
-    const hasSizes = this.kidsSizes.some(s => s.quantity > 0) || this.adultSizes.some(s => s.quantity > 0);
+    const hasSizes = this.kidsSizes.some(s => (s.quantity ?? 0) > 0) || this.adultSizes.some(s => (s.quantity ?? 0) > 0);
     if (!hasSizes) {
       this.errorMessage = 'Debe seleccionar al menos una talla.';
       return;
@@ -265,18 +262,24 @@ export class EditProduct implements OnInit {
       this.errorMessage = 'Las fechas ingresadas no son válidas.';
       return;
     }
+    const fechaAsignadaDate = new Date(this.product.fechaAsignada);
+    const fechaEntradaDate = new Date(this.product.fechaEntrada);
+    if (fechaEntradaDate < fechaAsignadaDate) {
+      this.errorMessage = 'La fecha de entrada no puede ser menor que la fecha asignada.';
+      return;
+    }
 
     const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
-      if (size.quantity > 0) sizeQuantities[size.name] = size.quantity;
+      if (size.quantity && size.quantity > 0) sizeQuantities[size.name] = size.quantity;
     });
     this.adultSizes.forEach(size => {
-      if (size.quantity > 0) sizeQuantities[size.name] = size.quantity;
+      if (size.quantity && size.quantity > 0) sizeQuantities[size.name] = size.quantity;
     });
 
     const productData = {
       id: this.product.id,
-      description: this.product.description === '' ? null : this.product.description,
+      description: this.product.description ,
       price: this.product.price,
       quantity: this.product.quantity,
       assignedDate: this.dateUtils.formatDateForBackend(this.product.fechaAsignada),
@@ -294,7 +297,6 @@ export class EditProduct implements OnInit {
       actualDeliveryDate: this.dateUtils.formatDateForBackend(this.product.actualDeliveryDate),
       sam: this.product.sam,
       quantityMade: this.product.quantityMade
-
     };
 
     this.loading = true;
@@ -309,13 +311,27 @@ export class EditProduct implements OnInit {
       }
     });
   }
+  // Limpiar todas las tallas
+clearSizes() {
+  this.kidsSizes.forEach(size => size.quantity = null);
+  this.adultSizes.forEach(size => size.quantity = null);
+  this.product.talla = '';
+  this.product.quantity = 0;
+  
+}
+  hasSizesSelected(): boolean {
+  return !!this.product.talla && this.product.talla.length > 0;
+}
 
+ hasModuleSelected(): boolean {
+    return !!this.product.module;
+  }
   volverAlInventario() {
     this.router.navigate(['/dashboard']);
   }
 
   getSelectedSizesCount(): number {
-    return this.kidsSizes.filter(s => s.quantity > 0).length +
-           this.adultSizes.filter(s => s.quantity > 0).length;
+    return this.kidsSizes.filter(s => (s.quantity ?? 0) > 0).length +
+           this.adultSizes.filter(s => (s.quantity ?? 0) > 0).length;
   }
 }

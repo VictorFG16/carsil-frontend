@@ -1,5 +1,4 @@
-
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
@@ -7,13 +6,16 @@ import { DateUtilsService } from '../../services/date-utils.service';
 import { FormsModule } from '@angular/forms';
 import { ModuleService } from '../../services/module.service';
 
+
+declare var bootstrap: any; 
+
 @Component({
   selector: 'app-inventory-table',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule ],
   templateUrl: './inventory-table.html',
   styleUrls: ['./inventory-table.css']
 })
-export class InventoryTable implements OnInit {
+export class InventoryTable implements OnInit, AfterViewInit {
   inventory: any[] = [];
   loading = true;
   error = '';
@@ -27,15 +29,53 @@ export class InventoryTable implements OnInit {
   showDeleteModal = false;
   productToDelete: any = null;
   errorMessage = '';
+  private tooltipList: any[] = [];
 
-  constructor(private productService: ProductService, private router: Router, private dateUtils: DateUtilsService, moduleService: ModuleService) {}
-
-  
+  constructor(
+    private productService: ProductService, 
+    private router: Router, 
+    private dateUtils: DateUtilsService, 
+    moduleService: ModuleService
+  ) {}
 
   ngOnInit() {
     this.loadProducts();
-    
   }
+
+  ngAfterViewInit() {
+    
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 100);
+  }
+
+  initializeTooltips() {
+    // Destruir TODOS los tooltips anteriores
+    this.tooltipList.forEach(tooltip => {
+      try {
+        tooltip.dispose();
+      } catch (e) {
+        
+      }
+    });
+    this.tooltipList = [];
+
+   
+    const existingTooltips = document.querySelectorAll('.tooltip');
+    existingTooltips.forEach(tooltip => tooltip.remove());
+
+    
+    const tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    this.tooltipList = tooltipTriggerList.map((tooltipTriggerEl: any) => {
+      return new bootstrap.Tooltip(tooltipTriggerEl, {
+        trigger: 'hover',
+        html: true
+      });
+    });
+  }
+
   loadProducts() {
     this.loading = true;
     this.isSearching = false;
@@ -56,13 +96,18 @@ export class InventoryTable implements OnInit {
           price: product.price,
           total: product.quantity
         }));
-        // Ordenar por ID descendente (más reciente primero)
+        
         this.inventory.sort((a, b) => b.id - a.id);
         this.totalRegistros = this.inventory.length;
         this.loading = false;
+        
+        
+        setTimeout(() => {
+          this.initializeTooltips();
+        }, 100);
       },
       error: (error) => {
-        this.error = 'Error al cargar los productos' ,error;
+        this.error = 'Error al cargar los productos', error;
         this.loading = false;
       }
     });
@@ -74,7 +119,6 @@ export class InventoryTable implements OnInit {
       return;
     }
 
-    
     this.isSearching = true;
     this.productService.searchProducts(this.searchTerm).subscribe({
       next: (products) => {
@@ -92,11 +136,16 @@ export class InventoryTable implements OnInit {
           price: product.price,
           total: product.quantity
         }));
-        // Ordenar por ID descendente (más reciente primero)
+
         this.inventory.sort((a, b) => b.id - a.id);
         this.totalRegistros = this.inventory.length;
         this.loading = false;
-        this.paginaActual = 1; // Volver a la primera página después de buscar
+        this.paginaActual = 1;
+        
+       
+        setTimeout(() => {
+          this.initializeTooltips();
+        }, 100);
       },
       error: (error) => {
         this.error = 'Error al buscar productos';
@@ -111,71 +160,98 @@ export class InventoryTable implements OnInit {
     this.loadProducts();
   }
 
-    // Métodos para paginación
-    get productosPaginados() {
-      const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-      const fin = inicio + this.itemsPorPagina;
-      // Asegurar que no excedamos el total de registros
-      return this.inventory.slice(inicio, Math.min(fin, this.totalRegistros));
-    }
   
-    get totalPaginas() {
-      return Math.ceil(this.totalRegistros / this.itemsPorPagina);
-    }
+ get productosPaginados() {
+  const inicio = (this.paginaActual - 1) * Number(this.itemsPorPagina);
+  const fin = inicio + Number(this.itemsPorPagina);
+  return this.inventory.slice(inicio, fin);
+}
+
+  get totalPaginas() {
+    return Math.ceil(this.totalRegistros / this.itemsPorPagina);
+  }
+
+  get paginas() {
+  const paginas = [];
+  const maxPaginasVisibles = 3;
   
-    get paginas() {
-      const paginas = [];
-      for (let i = 1; i <= this.totalPaginas; i++) {
-        paginas.push(i);
-      }
-      return paginas;
-    }
-  
-    get mostrandoDesde() {
-      const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-      return this.totalRegistros > 0 ? inicio + 1 : 0;
-    }
-  
-    get mostrandoHasta() {
-      const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-      const fin = Math.min(inicio + this.itemsPorPagina, this.totalRegistros);
-      return fin;
-    }
-  
-   
-  
-  
-    // Opciones disponibles para registros por página
-    get opcionesRegistros() {
-      return [10, 20, 30];
-    }
- volverAlHome() {
-    this.router.navigate(['/home']);}
+  if (this.totalPaginas <= maxPaginasVisibles) {
     
+    for (let i = 1; i <= this.totalPaginas; i++) {
+      paginas.push(i);
+    }
+  } else {
+    
+    let inicio = Math.max(1, this.paginaActual - 1);
+    let fin = Math.min(this.totalPaginas, inicio + 2);
+    
+    
+    if (fin === this.totalPaginas) {
+      inicio = Math.max(1, fin - 2);
+    }
+    
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+  }
+  
+  return paginas;
+}
+
+  get mostrandoDesde() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.totalRegistros > 0 ? inicio + 1 : 0;
+  }
+
+  get mostrandoHasta() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = Math.min(inicio + this.itemsPorPagina, this.totalRegistros);
+    return fin;
+  }
+
+  
+  get opcionesRegistros() {
+    return [10, 20, 30];
+  }
+
+  volverAlHome() {
+    this.router.navigate(['/home']);
+  }
+
   agregar() {
     this.router.navigate(['/add-product']);
   }
 
   onProductAdded() {
     this.showAddProductForm = false;
-    this.loadProducts(); // Recargar la lista después de agregar
+    this.loadProducts();
   }
 
   onCancel() {
     this.showAddProductForm = false;
   }
 
-  // Verificar si hay alguna fila seleccionada
+  
   isAnyRowSelected(): boolean {
     return this.selectedRow !== null;
   }
-  // Método para cambiar el número de registros por página
+
   cambiarRegistrosPorPagina(nuevoValor: number) {
-    this.itemsPorPagina = nuevoValor;
-    this.paginaActual = 1; // Siempre volver a la primera página al cambiar registros por página
-    this.selectedRow = null; // Limpiar selección
-  }
-  // Método para editar la fila seleccionada
+  this.itemsPorPagina = Number(nuevoValor); 
+  this.paginaActual = 1;
+  this.selectedRow = null;
+  
+  setTimeout(() => {
+    this.initializeTooltips();
+  }, 100);
+}
+
+
+private updatePagination() {
+  
+}
+
+  
   editarFila() {
     if (this.selectedRow !== null) {
       const filaSeleccionada = this.getFilaSeleccionada();
@@ -196,8 +272,8 @@ export class InventoryTable implements OnInit {
       this.productService.deleteProduct(this.productToDelete.id).subscribe({
         next: () => {
           this.showMessage('Producto eliminado exitosamente', 'success');
-          this.loadProducts(); // Recargar la lista después de eliminar
-          this.selectedRow = null; // Limpiar selección
+          this.loadProducts();
+          this.selectedRow = null;
           this.closeDeleteModal();
         },
         error: (error) => {
@@ -217,43 +293,91 @@ export class InventoryTable implements OnInit {
   // Método para mostrar mensajes
   showMessage(message: string, type: string) {
     this.errorMessage = message;
-    
   }
 
-  // Método para obtener los datos de la fila seleccionada
+  
   getFilaSeleccionada() {
     if (this.selectedRow !== null) {
       return this.productosPaginados[this.selectedRow];
     }
     return null;
   }
+
   anterior() {
-    if (this.paginaActual > 1) {
-      this.paginaActual--;
-    }
+  if (this.paginaActual > 1) {
+    this.paginaActual--;
+    this.selectedRow = null;
+    
+    
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 100);
   }
+}
 
-  siguiente() {
-    if (this.paginaActual < this.totalPaginas) {
-      this.paginaActual++;
-    }
+siguiente() {
+  if (this.paginaActual < this.totalPaginas) {
+    this.paginaActual++;
+    this.selectedRow = null;
+    
+    
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 100);
   }
+}
 
-  irAPagina(numero: number) {
+irAPagina(numero: number) {
+  if (numero >= 1 && numero <= this.totalPaginas) {
     this.paginaActual = numero;
+    this.selectedRow = null;
+    
+    
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 100);
   }
-  // Método para seleccionar una fila completa
+}
+
+
+  
   selectRow(rowIndex: number, event: MouseEvent) {
     event.stopPropagation();
     
     if (this.selectedRow === rowIndex) {
-      this.selectedRow = null; // Deseleccionar si ya está seleccionada
+      this.selectedRow = null;
     } else {
-      this.selectedRow = rowIndex; // Seleccionar la fila
+      this.selectedRow = rowIndex;
     }
+    
+    
+    this.destroyAllTooltips();
+    
+    
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 50);
   }
 
-  // Verificar si una fila está seleccionada
+ 
+  private destroyAllTooltips() {
+   
+    this.tooltipList.forEach(tooltip => {
+      try {
+        tooltip.hide();
+        tooltip.dispose();
+      } catch (e) {
+        
+      }
+    });
+    this.tooltipList = [];
+
+    
+    const existingTooltips = document.querySelectorAll('.tooltip');
+    existingTooltips.forEach(tooltip => tooltip.remove());
+  }
+
+  
   isRowSelected(rowIndex: number): boolean {
     return this.selectedRow === rowIndex;
   }

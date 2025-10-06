@@ -34,32 +34,37 @@ export function generateProductPdf(product: any, sizeSummary: { size: string; qu
   body.push([{ text: 'Detalle OP', style: 'tableHeader', colSpan: 2, alignment: 'center' }, {}]);
 
   // Product details rows
+  const formatCurrency = (value: number): string => {
+    return value.toLocaleString('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 2
+    });
+  };
   const productDetails = [
-    ['ID', product.id],
     ['OP', product.op],
     ['Referencia', product.reference],
     ['Marca', product.brand],
+    ['Descripción', product.description],
     ['Campaña', product.campaign],
     ['Tipo', product.type],
-    ['Equipo', product.module?.name || product.module || 'No asignado'],
     ['Fecha Asignada', formatDateForDisplay(product.assignedDate)],
     ['Fecha Entrada', formatDateForDisplay(product.plantEntryDate)],
-    ['Precio', product.price ? `$${product.price}` : ''],
     ['Cantidad', product.quantity],
-    ['Precio Total', product.price && product.quantity ? `$${product.price * product.quantity}` : ''],
-    ['Descripción', product.description],
-    ['Descripción paro', product.stoppageReason || ''],
+    ['Precio', product.price != null ? formatCurrency(Number(product.price)) : ''],
+    ['Precio Total', (product.price != null && product.quantity != null)? formatCurrency(Number(product.price) * Number(product.quantity)): ''],
     ['Estado', product.status || ''],
+    ['Motivo de parada', product.stoppageReason || ''],
     ['Ciclo', product.cycleCalculated || ''],
     ['Cantidad confeccionada', product.quantityMade || ''],
     ['Cantidad faltante', product.quantityPending || ''],
     ['% de entrega', product.deliveryPercentage ? `${product.deliveryPercentage}%` : ''],
     ['Fecha de entrega real', formatDateForDisplay(product.actualDeliveryDate)],
+    ['Equipo', product.module?.name || product.module || 'No asignado'],
     ['SAM', product.sam || ''],
-    ['Días de carga', product.loadDays || ''],
-    ['Días de carga total', product.totaLoadDays || ''],
+    ['SAM total', product.samTotal || ''],
     ['Número de personas', product.numPersons || ''],
-    ['SAM total', product.samTotal || '']
+    ['Días de carga', product.loadDays || ''],
   ];
   productDetails.forEach(row => {
     body.push(row);
@@ -116,5 +121,5 @@ export function generateProductPdf(product: any, sizeSummary: { size: string; qu
     }
   };
 
-  pdfMake.createPdf(docDefinition).download(`Reporte_OP_${product.op || product.id}.pdf`);
+  pdfMake.createPdf(docDefinition).download(`Reporte_OP_${product.op}.pdf`);
 }

@@ -1,42 +1,41 @@
 <app-navbar></app-navbar>
 <button class="btn btn-primary  volver mt-4 ms-4" (click)="volverAlHome()">
-      <i class="fas fa-arrow-left"></i>
-      <span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+  <i class="fas fa-arrow-left"></i>
+  <span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"/>
 </svg> Volver al Home</span></button>
 <div class="op-container">
   
-    <!-- Panel izquierdo: Consultar OP -->
+
+  <!-- Panel izquierdo: Consultar OP -->
   <div class="consultar-op-panel">
     <div class="panel-header">
       <h2>Consultar OP</h2>
     </div>
-    
-    <!-- Barra de búsqueda -->
-    <div class="search-bar">
-      <input 
-        type="text" 
-        placeholder="Ingrese el número de OP..."
-        aria-label="search"
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="searchByOP()"
-        (input)="onSearchInput()"
-        class="form-control buscador" 
-        pattern="[0-9]*"
-        inputmode="numeric"
-      >
-      <button class="btn btn-outline-success" [class.loading]="isLoading" (click)="searchByOP()" [disabled]="isLoading">
-        <i class="fas fa-search" *ngIf="!isLoading"></i>
-        <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
-        <span>Buscar</span>
-      </button>
-      <button class="btn btn-outline-secondary" (click)="clearSearch()">
-        <i class="fas fa-trash"></i>
-        <span>Limpiar filtro</span>
-      </button>
-    </div>
 
-   
+    <!-- Barra de búsqueda -->
+<div class="search-bar">
+  <input
+    type="number"
+    placeholder="Ingrese los 7 números de la orden de producción"
+    aria-label="search"
+    [(ngModel)]="searchOp"
+    (keyup.enter)="searchByOP()"
+    class="form-control buscador"
+    min="0"
+  >      
+  <button class="btn btn-outline-success" [class.loading]="isLoading" (click)="searchByOP()" [disabled]="isLoading">
+    <i class="fas fa-search" *ngIf="!isLoading"></i>
+    <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+    <span>Buscar</span>
+  </button>
+  <button class="btn btn-outline-secondary" (click)="clearSearch()">
+    <i class="fas fa-trash"></i>
+    <span>Limpiar filtro</span>
+  </button>
+</div>
+
+
 
     <div class="results-table-container" *ngIf="searchResults.length > 0">
       <div class="results-info">
@@ -44,30 +43,28 @@
       </div>
       <table class="results-table">
         <thead>
-          <tr>
-            <th>OP</th>
-            <th>Descripción</th>
-            <th>Referencia</th>
-            <th>Cantidad</th>            
-          </tr>
+        <tr>
+          <th>OP</th>
+          <th>Descripción</th>
+          <th>Referencia</th>
+          <th>Cantidad</th>
+        </tr>
         </thead>
         <tbody>
-          <tr 
-            *ngFor="let product of searchResults; trackBy: trackByProduct"
-            [class.selected]="selectedProduct?.id === product.id"
-            (click)="selectProduct(product)"
-          >
-            <td class="op-link">{{ product.op }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.reference }}</td>
-            <td>{{ product.quantity }}</td>
-          </tr>
+        <tr
+          *ngFor="let product of searchResults; trackBy: trackByProduct"
+          [class.selected]="selectedProduct?.id === product.id"
+          (click)="selectProduct(product)"
+        >
+          <td class="op-link">{{ product.op }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.reference }}</td>
+          <td>{{ product.quantity }}</td>
+        </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Barra de progreso -->
-    
 
     <!-- Estado de carga -->
     <div class="loading-state" *ngIf="isLoading">
@@ -84,184 +81,177 @@
   </div>
 
   <!-- Panel derecho: Detalle OP -->
-<div class="detalle-op-panel"  [class.empty]="!selectedProduct">
-  <div class="panel-header">
-    <h2 *ngIf="selectedProduct">Detalle OP - {{ selectedProduct.op }}</h2>
-    <h2 *ngIf="!selectedProduct">Detalle OP</h2>
-  </div>
-
-  <div *ngIf="selectedProduct" class="product-details">
-    <!-- Header del producto -->
-    <div class="product-header">
-      <div class="product-icon">
-        <span>OP</span>
-      </div>
-      <div class="product-info">
-        <h3>{{ selectedProduct.type }}</h3>
-        <p>{{ selectedProduct.description }}</p>
-      </div>
-      <div class="qr-section">
-        <div class="qr-icon">
-          <i class="fas fa-qrcode"></i>
-        </div>
-        <span class="qr-number">{{ selectedProduct.id }}</span>
-      </div>
+  <div class="detalle-op-panel"  [class.empty]="!selectedProduct">
+    <div class="panel-header">
+      <h2 *ngIf="selectedProduct">Detalle OP - {{ selectedProduct.op }}</h2>
+      <h2 *ngIf="!selectedProduct">Detalle OP</h2>
     </div>
 
-    <!-- Detalles del producto -->
-    <div class="product-attributes">
-      <div class="attribute-row">
-        <span class="attribute-label">ID:</span>
-        <span class="attribute-value">{{ selectedProduct.id }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">OP:</span>
-        <span class="attribute-value">{{ selectedProduct.op }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Referencia:</span>
-        <span class="attribute-value">{{ selectedProduct.reference }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Marca:</span>
-        <span class="attribute-value">{{ selectedProduct.brand }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Campaña:</span>
-        <span class="attribute-value">{{ selectedProduct.campaign }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Tipo:</span>
-        <span class="attribute-value">{{ selectedProduct.type }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Equipo:</span>
-        <span class="attribute-value">{{ (selectedProduct.module && typeof selectedProduct.module === 'object') ? selectedProduct.module.name : selectedProduct.module || 'No asignado' }}</span>
+    <div *ngIf="selectedProduct" class="product-details">
+      <!-- Header del producto -->
+      <div class="product-header">
+        <div class="product-icon">
+          <span>OP</span>
+        </div>
+        <div class="product-info">
+          <h3>{{ selectedProduct.type }}</h3>
+          <p>{{ selectedProduct.description }}</p>
+        </div>
+        <div class="qr-section">
+          <div class="qr-icon">
+            <i class="fas fa-qrcode"></i>
+          </div>
+        </div>
       </div>
 
-      <div class="attribute-row">
-        <span class="attribute-label">Fecha Asignada:</span>
-        <span class="attribute-value">{{ selectedProduct.assignedDate | date:'dd-MM-yyyy' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Fecha Entrada:</span>
-        <span class="attribute-value">{{ selectedProduct.plantEntryDate | date:'dd-MM-yyyy' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Precio:</span>
-        <span class="attribute-value">COP {{ selectedProduct.price | number:'1.2-2' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Cantidad:</span>
-        <span class="attribute-value">{{ selectedProduct.quantity }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Precio Total:</span>
-        <span class="attribute-value total-price">COP {{ (selectedProduct.price * selectedProduct.quantity) | number:'1.0-0' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Descripción:</span>
-        <span class="attribute-value">{{ selectedProduct.description }}</span>
-      </div>
-      <!-- Removed Valor Total display as per request -->
-      <div class="attribute-row">
-        <span class="attribute-label">Motivo de parada:</span>
-        <span class="attribute-value">{{ selectedProduct?.stoppageReason || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Estado:</span>
-        <span class="attribute-value">{{ selectedProduct.status || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Ciclo:</span>
-        <span class="attribute-value">{{ selectedProduct.cycleCalculated || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Cantidad confeccionada:</span>
-        <span class="attribute-value">{{ selectedProduct.quantityMade || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Cantidad faltante:</span>
-        <span class="attribute-value">{{ selectedProduct.missing || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">% de entrega:</span>
-        <span class="attribute-value">{{ selectedProduct.deliveryPercentage || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Fecha de entrega real:</span>
-        <span class="attribute-value">
+      <!-- Detalles del producto -->
+      <div class="product-attributes">
+
+        <div class="attribute-row">
+          <span class="attribute-label">OP:</span>
+          <span class="attribute-value">{{ selectedProduct.op }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Referencia:</span>
+          <span class="attribute-value">{{ selectedProduct.reference }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Marca:</span>
+          <span class="attribute-value">{{ selectedProduct.brand }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Descripción:</span>
+          <span class="attribute-value">{{ selectedProduct.description }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Campaña:</span>
+          <span class="attribute-value">{{ selectedProduct.campaign }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Tipo:</span>
+          <span class="attribute-value">{{ selectedProduct.type }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Fecha Asignada:</span>
+          <span class="attribute-value">{{ selectedProduct.assignedDate | date:'dd-MM-yyyy' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Fecha Entrada:</span>
+          <span class="attribute-value">{{ selectedProduct.plantEntryDate | date:'dd-MM-yyyy' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Cantidad:</span>
+          <span class="attribute-value">{{ selectedProduct.quantity }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Precio:</span>
+          <span class="attribute-value">
+         {{ selectedProduct.price | currency:'COP':'symbol':'1.2-2':'es-CO' }}
+        </span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Precio Total:</span>
+          <span class="attribute-value total-price">
+         {{ (selectedProduct.price * selectedProduct.quantity) | currency:'COP':'symbol':'1.2-2':'es-CO' }}
+        </span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Estado:</span>
+          <span class="attribute-value">{{ selectedProduct.status || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Motivo de parada:</span>
+          <span class="attribute-value">{{ selectedProduct?.stoppageReason || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Ciclo:</span>
+          <span class="attribute-value">{{ selectedProduct.cycleCalculated || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Cantidad confeccionada:</span>
+          <span class="attribute-value">{{ selectedProduct.quantityMade || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Cantidad faltante:</span>
+          <span class="attribute-value">{{ selectedProduct.missing || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">% de entrega:</span>
+          <span class="attribute-value">{{ selectedProduct.deliveryPercentage || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Fecha de entrega real:</span>
+          <span class="attribute-value">
           {{ selectedProduct.actualDeliveryDate ? (selectedProduct.actualDeliveryDate | date:'dd-MM-yyyy') : 'N/A' }}
         </span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">SAM:</span>
-        <span class="attribute-value">{{ selectedProduct.sam || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Días de carga:</span>
-        <span class="attribute-value">{{ selectedProduct.loadDays || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Días de carga total:</span>
-        <span class="attribute-value">{{ selectedProduct.totaLoadDays || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">Número de personas:</span>
-        <span class="attribute-value">{{ selectedProduct.numPersons || 'N/A' }}</span>
-      </div>
-      <div class="attribute-row">
-        <span class="attribute-label">SAM total:</span>
-        <span class="attribute-value">{{ selectedProduct.samTotal || 'N/A' }}</span>
-      </div>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Equipo:</span>
+          <span class="attribute-value">{{ (selectedProduct.module && typeof selectedProduct.module === 'object') ? selectedProduct.module.name : selectedProduct.module || 'No asignado' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">SAM:</span>
+          <span class="attribute-value">{{ selectedProduct.sam || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">SAM total:</span>
+          <span class="attribute-value">{{ selectedProduct.samTotal || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Número de personas:</span>
+          <span class="attribute-value">{{ selectedProduct.numPersons || 'N/A' }}</span>
+        </div>
+        <div class="attribute-row">
+          <span class="attribute-label">Días de carga:</span>
+          <span class="attribute-value">{{ selectedProduct.loadDays || 'N/A' }}</span>
+        </div>
 
-    <!-- Tabla de sub-detalles -->
-    <div class="sub-details-table mx-auto p-2 text-start">
-      
+        <!-- Tabla de sub-detalles -->
+        <div class="sub-details-table mx-auto p-2 text-start">
+
+        </div>
+
+        <!-- Tabla de resumen de tallas -->
+        <div class="size-summary-table" *ngIf="sizeSummary.length > 0">
+          <h5 class="summary-title">Resumen de Tallas - OP {{ selectedProduct.op }}</h5>
+          <table class="summary-table">
+            <thead>
+            <tr>
+              <th>Talla</th>
+              <th>Cantidad</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of sizeSummary">
+              <td>{{ item.size }}</td>
+              <td>{{ item.quantity }}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="total-row">
+              <td><strong>Total</strong></td>
+              <td><strong>{{ totalQuantity }}</strong></td>
+            </tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="btn exportar btn-danger m-3" (click)="exportToPdf()" [disabled]="!selectedProduct">
+          Descargar <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+        </svg>
+        </button>
+      </div>
+      <h5 class="text-primary">Carsil</h5>
     </div>
 
-    <!-- Tabla de resumen de tallas -->
-    <div class="size-summary-table" *ngIf="sizeSummary.length > 0">
-      <h5 class="summary-title">Resumen de Tallas - OP {{ selectedProduct.op }}</h5>
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th>Talla</th>
-            <th>Cantidad</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of sizeSummary">
-            <td>{{ item.size }}</td>
-            <td>{{ item.quantity }}</td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td><strong>Total</strong></td>
-            <td><strong>{{ totalQuantity }}</strong></td>
-          </tr>
-        </tfoot>
-      </table>
+
+    <!-- Panel derecho vacío -->
+    <div class="detalle-op-panel empty" *ngIf="!selectedProduct">
+
+      <div class="empty-state">
+        <i class="fas fa-info-circle"></i>
+        <h3>Selecciona una OP</h3>
+        <p>Haz clic en una orden de producción de la lista para ver sus detalles.</p>
+      </div>
     </div>
-     <button class="btn exportar btn-danger m-3" (click)="exportToPdf()" [disabled]="!selectedProduct">
-    Descargar <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-</svg>
-  </button>
   </div>
-<h5 class="text-primary">Carsil</h5>
-</div>
-  
-
-  <!-- Panel derecho vacío -->
-  <div class="detalle-op-panel empty" *ngIf="!selectedProduct">
-    
-    <div class="empty-state">
-      <i class="fas fa-info-circle"></i>
-      <h3>Selecciona una OP</h3>
-      <p>Haz clic en una orden de producción de la lista para ver sus detalles.</p>
-    </div>
-  </div>
-</div>
-  
