@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../services/product.service';
 import { FormsModule, NgForm } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { DateUtilsService } from '../../../services/date-utils.service';
-import { ModuleService, Module } from '../../../services/module.service';
+import { TeamService, Team } from '../../../services/team.service';
 import { Navbar } from '../../navbar/navbar';
 import { NumericOnlyDirective } from '../../../directives/numeric-only.directive';
 
@@ -16,6 +17,9 @@ import { NumericOnlyDirective } from '../../../directives/numeric-only.directive
   styleUrls: ['./edit-product.css'] ,
 })
 export class EditProduct implements OnInit {
+  brands: { key: string, label: string }[] = [];
+  stoppageReasons : { key: string, label: string }[] = [];
+  productionStatus : { key: string, label: string }[] = [];
   product = {
     id: 0,
     description: '',
@@ -29,9 +33,9 @@ export class EditProduct implements OnInit {
     camp: '',
     tipo: '',
     talla: '',
-    module: null as Module | null,
-    stoppageReason: '',
-    status: '',
+    team: null as Team | null,
+    stoppageReason: null as string | null,
+    status: null as string | null,
     actualDeliveryDate: '',
     sam: null as number | null,
     quantityMade: null as number | null
@@ -39,55 +43,62 @@ export class EditProduct implements OnInit {
   errorMessage = '';
   loading = false;
   productId: number = 0;
-
-  modules: Module[] = [];
-
-  stoppageReasons: string[] = [
-    'MARQUILLA TALLA',
-    'COMPOSICION',
-    'CODIGO',
-    'FALTANTE DE PIEZA',
-    'BOLSAS',
-    'FALTA TODO',
-    'OK',
-    'FICHA',
-    'SESGO'
-  ];
-  status: string[] = ['PROCESO', 'ASIGNADO', 'CONFECCION'];
-
+  teams: Team[] = [];
   showSizeModal = false;
   activeSizeSection: 'kids' | 'adult' = 'kids';
-  showModuleModal = false;
+  showTeamModal = false;
 
-  kidsSizes = [
-    { name: '2', quantity: null as number | null },
-    { name: '4', quantity: null as number | null },
-    { name: '6', quantity: null as number | null },
-    { name: '8', quantity: null as number | null },
-    { name: '10', quantity: null as number | null },
-    { name: '12', quantity: null as number | null },
-    { name: '16', quantity: null as number | null }
-  ];
+  kidsSizes: { name: string, quantity: number | null }[] = [];
+  adultSizes: { name: string, quantity: number | null }[] = [];
 
-  adultSizes = [
-    { name: 'XS', quantity: null as number | null },
-    { name: 'S', quantity: null as number | null },
-    { name: 'M', quantity: null as number | null },
-    { name: 'L', quantity: null as number | null },
-    { name: 'XL', quantity: null as number | null },
-    { name: 'XXL', quantity: null as number | null }
-  ];
+  async loadEnums() {
+  try {
+    const res = await firstValueFrom(this.productService.getAllEnums());
+    
+    this.brands = res.brands.map((b: Record<string, string>) => {
+      const [key, label] = Object.entries(b)[0];
+      return { key, label };
+    });
+
+    
+    this.stoppageReasons = res.stoppageReasons.map((s: Record<string, string>) => {
+      const [key, label] = Object.entries(s)[0];
+      return { key, label };
+    });
+
+    
+    this.productionStatus   = res.productionStatus.map((s: Record<string, string>) => {
+      const [key, label] = Object.entries(s)[0];
+      return { key, label };
+    });
+
+  
+    const sizes = res.sizes.map((s: Record<string, string>) => {
+      const [key, label] = Object.entries(s)[0];
+      return { key, label };
+    });
+
+    
+    this.kidsSizes = sizes.filter((s: { key: string, label: string }) => !isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+    this.adultSizes = sizes.filter((s: { key: string, label: string }) => isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+
+  } catch (err) {
+    console.error('Error al cargar enums:', err);
+  }
+}
 
   constructor(
     private readonly productService: ProductService,
     private router: Router,
     private route: ActivatedRoute,
     private dateUtils: DateUtilsService,
-    private moduleService: ModuleService
+    private teamService: TeamService
   ) {}
 
   async ngOnInit() {
-    await this.loadModules();
+    await this.loadEnums();
+    await this.loadTeams();
+
     this.route.params.subscribe(params => {
       this.productId = +params['id'];
       if (this.productId) {
@@ -96,23 +107,24 @@ export class EditProduct implements OnInit {
     });
   }
 
-  loadModules(): Promise<void> {
+
+  loadTeams(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.moduleService.getAllModules().subscribe({
-        next: (modules) => {
-          this.modules = modules;
+      this.teamService.getAllTeams().subscribe({
+        next: (teams) => {
+          this.teams = teams;
           resolve();
         },
         error: (error) => {
-          console.error('Error al cargar módulos:', error);
+          console.error('Error al cargar equipos:', error);
           reject(error);
         }
       });
     });
   }
 
-  getModuleName(): string {
-    return this.product.module ? this.product.module.name : '';
+  getTeamName(): string {
+    return this.product.team ? this.product.team.name : '';
   }
 
   openSizeModal() {
@@ -145,23 +157,25 @@ export class EditProduct implements OnInit {
     this.closeSizeModal();
   }
 
-  openModuleModal() {
-    this.showModuleModal = true;
+  openTeamModal() {
+    this.showTeamModal = true;
   }
 
-  closeModuleModal() {
-    this.showModuleModal = false;
+  closeTeamModal() {
+    this.showTeamModal = false;
   }
 
-  selectModule(mod: Module) {
-    this.product.module = mod;
-    this.closeModuleModal();
+  selectTeam(mod: Team) {
+    this.product.team = mod;
+    this.closeTeamModal();
   }
 
   loadProduct(id: number) {
     this.loading = true;
     this.productService.getProductById(id).subscribe({
-      next: (product: any) => {
+      next: 
+      
+      (product: any) => {
         this.product = {
           id: product.id,
           description: product.description || '',
@@ -175,18 +189,17 @@ export class EditProduct implements OnInit {
           camp: product.campaign || '',
           tipo: product.type || '',
           talla: '',
-          module: null,
-          stoppageReason: product.stoppageReason || '',
-          status: product.status || '',
+          team: product.team || null,
+          stoppageReason: product.stoppageReason || null,
+          status: product.status || null,
           actualDeliveryDate: this.dateUtils.formatDateForBackend(product.actualDeliveryDate),
           sam: product.sam || 0,
           quantityMade: product.quantityMade || 0
         };
-
-        if (product.module && product.module.id) {
-          const matchedModule = this.modules.find(m => m.id === product.module.id);
-          if (matchedModule) {
-            this.product.module = matchedModule;
+        if (product.Team && product.Team.id) {
+          const matchedTeam = this.teams.find(m => m.id === product.Team.id);
+          if (matchedTeam) {
+            this.product.team = matchedTeam;
           }
         }
 
@@ -210,11 +223,12 @@ export class EditProduct implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error al cargar el producto:', error);
         this.errorMessage = 'Error al cargar el producto para editar.';
         this.loading = false;
       }
+      
     });
+
   }
 
   loadSizesFromData(sizeData: any[]) {
@@ -245,7 +259,7 @@ export class EditProduct implements OnInit {
     if (!this.product.referencia || !this.product.fechaAsignada ||
         !this.product.fechaEntrada || !this.product.marca || !this.product.op ||
         !this.product.camp || !this.product.tipo ||
-        !this.product.quantity || !this.product.price || !this.product.module ||
+        !this.product.quantity || !this.product.price || !this.product.team ||
         !this.product.sam || this.product.sam <= 0) {
       this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
       return;
@@ -269,6 +283,16 @@ export class EditProduct implements OnInit {
       return;
     }
 
+    
+    if (this.product.actualDeliveryDate) {
+      const actualDeliveryDate = new Date(this.product.actualDeliveryDate);
+      if (actualDeliveryDate < fechaAsignadaDate) {
+        this.errorMessage = 'La fecha de entrega real no puede ser menor que la fecha asignada.';
+        return;
+      }
+    }
+    
+    
     const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
       if (size.quantity && size.quantity > 0) sizeQuantities[size.name] = size.quantity;
@@ -291,7 +315,7 @@ export class EditProduct implements OnInit {
       type: this.product.tipo,
       sizeQuantities: sizeQuantities,
       size: '',
-      module: this.product.module,
+      team: this.product.team,
       stoppageReason: this.product.stoppageReason === '' ? null : this.product.stoppageReason,
       status: this.product.status === '' ? null : this.product.status,
       actualDeliveryDate: this.dateUtils.formatDateForBackend(this.product.actualDeliveryDate),
@@ -323,8 +347,8 @@ clearSizes() {
   return !!this.product.talla && this.product.talla.length > 0;
 }
 
- hasModuleSelected(): boolean {
-    return !!this.product.module;
+ hasTeamSelected(): boolean {
+    return !!this.product.team;
   }
   volverAlInventario() {
     this.router.navigate(['/dashboard']);

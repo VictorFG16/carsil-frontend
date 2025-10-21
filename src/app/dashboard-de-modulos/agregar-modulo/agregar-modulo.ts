@@ -3,7 +3,7 @@ import { Navbar } from "../../dashboard/navbar/navbar";
 import { FormsModule , NgForm} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ModuleService } from '../../services/module.service';
+import { TeamService } from '../../services/team.service';
 
 @Component({
   selector: 'app-agregar-modulo',
@@ -12,7 +12,7 @@ import { ModuleService } from '../../services/module.service';
   styleUrl: './agregar-modulo.css'
 })
 export class AgregarModulo {
-  module = {
+  team = {
     name: '',
     description: '',
     numPersons: 0,
@@ -21,7 +21,7 @@ errorMessage = '';
 loading = false;
 
   constructor (private router: Router,
-    private moduleService: ModuleService
+    private teamService: TeamService
   ){}
     
   
@@ -35,17 +35,17 @@ onSubmit(form: NgForm) {
 this.errorMessage = '';
 this.loading = true;
 
-if (!this.module.name || this.module.numPersons <= 0) {
+if (!this.team.name || this.team.numPersons <= 0) {
   this.errorMessage = 'Por favor, complete todos los campos correctamente.';
   this.loading = false;
   return;
 }
- const moduleData = {
-   name: this.module.name,
-   description: this.module.description,
-   numPersons: this.module.numPersons,
+ const teamData = {
+   name: this.team.name,
+   description: this.team.description,
+   numPersons: this.team.numPersons,
 };
- this.moduleService.createModule(moduleData).subscribe({
+ this.teamService.createTeam(teamData).subscribe({
    next: (response) => {
      console.log('Módulo creado con éxito:', response);
      this.loading = false;

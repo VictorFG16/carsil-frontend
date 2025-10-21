@@ -186,12 +186,12 @@
               <th>Fecha entrada</th>
               <th>Referencia</th>
               <th>Marca</th>
-              <th>Op</th>
-              <th>Camp</th>
+              <th>OP</th>
+              <th>Campaña</th>
               <th>Tipo</th>
               <th>Equipo</th>
               <th>Descripción</th>
-              <th>Precio</th>
+              <th>P. Unitario</th>
               <th>Total</th>
             </tr>
           </thead>
@@ -243,7 +243,7 @@
                 [class.selected-column]="isRowSelected(rowIndex)"
                 (click)="selectRow(rowIndex, $event)"
               >
-                {{ item.modulo?.name || "" }}
+                {{ item.team?.name || "" }}
               </td>
               <td
                 [class.selected-column]="isRowSelected(rowIndex)"

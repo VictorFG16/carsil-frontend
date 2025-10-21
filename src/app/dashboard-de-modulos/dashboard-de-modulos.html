@@ -21,7 +21,7 @@
           <path
             d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
         </svg> Crear Equipo</button>
-        <button class="btn editarModulo ms-3" (click)="editarModulo() " [disabled]="!isAnyModuleSelected()"><svg
+        <button class="btn editarModulo ms-3" (click)="editarModulo() " [disabled]="!isAnyTeamSelected()"><svg
                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                 class="bi bi-pencil-square" viewBox="0 0 16 16">
                 <path
@@ -42,25 +42,25 @@
 
 
         <div *ngIf="!loading && !error" class="row">
-            <div *ngFor="let module of modules.slice(0, 20)" class="col-md-3 col-sm-6 mb-4 mt-4"
-                (click)="onModuleSelect(module)">
-                <div class="card module-card" [style.border-color]="getModuleColor(module.loadDays)"
-                    [class.selected]="selectedModule === module">
+            <div *ngFor="let team of teams.slice(0, 20)" class="col-md-3 col-sm-6 mb-4 mt-4"
+                (click)="onTeamSelect(team)">
+                <div class="card module-card" [style.border-color]="getTeamColor(team.loadDays)"
+                    [class.selected]="selectedTeam === team">
                     <div class="card-body text-center">
-                        <h5 class="card-title">{{ module.name }}</h5>
-                        <p class="card-text" *ngIf="module.description">
-                            {{ module.description }}
+                        <h5 class="card-title">{{ team.name }}</h5>
+                        <p class="card-text" *ngIf="team.description">
+                            {{ team.description }}
                         </p>
-                        <div class="time-indicator" [style.background-color]="getModuleColor(module.loadDays)">
-                            <strong>{{ module.loadDays }} días</strong>
+                        <div class="time-indicator" [style.background-color]="getTeamColor(team.loadDays)">
+                            <strong>{{ team.loadDays }} días</strong>
                         </div>
-                        <app-progress-gauge [progress]="module.loadDays"></app-progress-gauge>
+                        <app-progress-gauge [progress]="team.loadDays"></app-progress-gauge>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div *ngIf="!loading && modules.length === 0" class="text-center">
+        <div *ngIf="!loading && teams.length === 0" class="text-center">
             <p>No hay equipos disponibles</p>
         </div>
     </div>

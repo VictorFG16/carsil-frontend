@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Navbar } from "../dashboard/navbar/navbar";
 import { Router } from '@angular/router';
-import { ModuleService } from '../services/module.service';
+import { TeamService } from '../services/team.service';
 import { CommonModule } from '@angular/common';
 import { ProgressGaugeComponent } from './progress-gauge/progress-gauge.component';
 
@@ -12,35 +12,35 @@ import { ProgressGaugeComponent } from './progress-gauge/progress-gauge.componen
   styleUrls: ['./dashboard-de-modulos.css'],
 })
 export class DashboardDeModulos implements OnInit {
-  modules: any[] = [];
+  teams: any[] = [];
   loading = true;
   error: string | null = null;
-  selectedModule: number | null = null; 
+  selectedTeam: number | null = null; 
 
   constructor(
     private router: Router,
-    private moduleService: ModuleService
+    private teamService: TeamService
   ) {}
 
   ngOnInit() {
-    this.loadModules();
+    this.loadTeams();
   }
 
-  loadModules() {
-    this.moduleService.getAllModules().subscribe({
+  loadTeams() {
+    this.teamService.getAllTeams().subscribe({
       next: (data: any) => {
-        this.modules = data.slice(0, 20); // Máximo 20 módulos
+        this.teams = data.slice(0, 20); // Máximo 20 módulos
         this.loading = false;
       },
       error: (error) => {
-        this.error = 'Error al cargar los módulos';
+        this.error = 'Error al cargar los equipos';
         this.loading = false;
         
       }
     });
   }
 
-  getModuleColor(loadDays: number): string {
+  getTeamColor(loadDays: number): string {
     if (loadDays <= 0.49) {
       return 'red';
     } else if (loadDays <= 0.99) {
@@ -52,15 +52,15 @@ export class DashboardDeModulos implements OnInit {
     }
   }
 
-  onModuleSelect(module: any) {
-    if (this.selectedModule === module) {
-      this.selectedModule = null; // Deseleccionar si ya está seleccionado
+  onTeamSelect(team: any) {
+    if (this.selectedTeam === team) {
+      this.selectedTeam = null; // Deseleccionar si ya está seleccionado
     } else {
-      this.selectedModule = module; // Seleccionar el módulo
+      this.selectedTeam = team; // Seleccionar el módulo
     }
   }
-  isAnyModuleSelected(): boolean {
-    return this.selectedModule !== null;
+  isAnyTeamSelected(): boolean {
+    return this.selectedTeam !== null;
   }
 
   volverAlHome() {
@@ -72,16 +72,16 @@ export class DashboardDeModulos implements OnInit {
   }
   
   editarModulo() { 
-    if (this.selectedModule !== null) {
-      const moduloSeleccionado = this.getModuleSeleccionado();
-      this.router.navigate(['/edit-modulo', moduloSeleccionado.id]);
+    if (this.selectedTeam !== null) {
+      const teamSeleccionado = this.getTeamSeleccionado();
+      this.router.navigate(['/edit-modulo', teamSeleccionado.id]);
     }
   }
 
-  getModuleSeleccionado(): any {
-    if (this.selectedModule == null) {
-      throw new Error('No hay ningún módulo seleccionado');
+  getTeamSeleccionado(): any {
+    if (this.selectedTeam == null) {
+      throw new Error('No hay ningún equipo seleccionado');
     }
-    return this.selectedModule;
+    return this.selectedTeam;
   }
 }

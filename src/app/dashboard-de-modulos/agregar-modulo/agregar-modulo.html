@@ -11,7 +11,7 @@
     
 
     
-    <form (ngSubmit)="onSubmit(moduleForm)" #moduleForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit(teamForm)" #teamForm="ngForm" novalidate>
        <div class="col-md-70">
             <div class="form-group mb-3">
                 <label for="Nombre">Nombre</label>
@@ -20,7 +20,7 @@
                     id="name"
                     name="name"
                     class="form-control"
-                    [(ngModel)]="module.name"
+                    [(ngModel)]="team.name"
                     required
                 />
             </div>
@@ -34,7 +34,7 @@
                     id="description" 
                     name="description" 
                     class="form-control"
-                    [(ngModel)]="module.description"
+                    [(ngModel)]="team.description"
                     
                 /> 
             </div>
@@ -49,7 +49,7 @@
                     id="numPersons"
                     name="numPersons"
                     class="form-control"
-                    [(ngModel)]="module.numPersons"
+                    [(ngModel)]="team.numPersons"
                     required
                 />
             </div>

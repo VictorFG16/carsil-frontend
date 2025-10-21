@@ -1,6 +1,6 @@
 <app-navbar></app-navbar>
 <div class="container mt-4">
-  <div class="titulo bg-primary text-white p-3 mb-4 " >
+  <div class="titulo bg-primary text-white p-3 mb-4">
     <h2>Editar Orden de Producción</h2>
   </div>
 
@@ -12,9 +12,8 @@
     <div class="alert alert-danger" *ngIf="errorMessage">
       {{ errorMessage }}
     </div>
-    
+
     <div class="row">
-      
       <div class="col-md-6">
         <div class="form-group mb-3">
           <label for="productDescription">Descripción</label>
@@ -23,7 +22,8 @@
             id="description"
             [(ngModel)]="product.description"
             name="descripcion"
-            class="form-control">
+            class="form-control"
+          />
         </div>
       </div>
       <div class="col-md-6">
@@ -99,16 +99,17 @@
       <div class="col-md-4">
         <div class="form-group mb-3">
           <label for="marca">Marca</label>
-          <input
-            type="text"
-            id="marca"
-            [(ngModel)]="product.marca"
+          <select
+            class="form-select"
             name="marca"
-            class="form-control"
-            [class.is-invalid]="productForm.submitted && !product.marca"
+            [(ngModel)]="product.marca"
             required
-            [disabled]="loading"
-          />
+            [class.is-invalid]="productForm.submitted && !product.marca"
+          >
+            <option *ngFor="let b of brands" [value]="b.label">
+              {{ b.label }}
+            </option>
+          </select>
           <div
             class="invalid-feedback"
             *ngIf="productForm.submitted && !product.marca"
@@ -117,6 +118,7 @@
           </div>
         </div>
       </div>
+
       <div class="col-md-4">
         <div class="form-group mb-3">
           <label for="op">OP</label>
@@ -141,7 +143,7 @@
       </div>
       <div class="col-md-4">
         <div class="form-group mb-3">
-          <label for="camp">Camp</label>
+          <label for="camp">Campaña</label>
           <input
             type="number"
             id="camp"
@@ -157,7 +159,7 @@
             class="invalid-feedback"
             *ngIf="productForm.submitted && !product.camp"
           >
-            El camp es requerido
+            La campaña es requerido
           </div>
         </div>
       </div>
@@ -214,7 +216,7 @@
       </div>
       <div class="col-md-4">
         <div class="form-group mb-3">
-          <label for="color">Precio</label>
+          <label for="color">Precio Unitario</label>
           <input
             type="number"
             id="price"
@@ -234,33 +236,32 @@
             El precio es requerido
           </div>
         </div>
-
       </div>
-      
-    
     </div>
 
     <div class="row">
       <div class="col-md-6">
         <div class="form-group mb-3">
-          <label for="module">Equipo</label>
+          <label for="team">Equipo</label>
           <button
             type="button"
             class="form-control"
-            [ngClass]="{'btn-outline-secondary': !hasModuleSelected(),
-            'btn-success': hasModuleSelected(),
-             'is-invalid': productForm.submitted && !hasModuleSelected()}"
-            (click)="openModuleModal()"
+            [ngClass]="{
+              'btn-outline-secondary': !hasTeamSelected(),
+              'btn-success': hasTeamSelected(),
+              'is-invalid': productForm.submitted && !hasTeamSelected()
+            }"
+            (click)="openTeamModal()"
           >
-
-            {{ hasModuleSelected() 
-            ? " ✓ Equipo: " +product.module?.name
-            : "Seleccionar Equipo"
+            {{
+              hasTeamSelected()
+                ? " ✓ Equipo: " + product.team?.name
+                : "Seleccionar Equipo"
             }}
           </button>
           <div
             class="invalid-feedback"
-            *ngIf="productForm.submitted && !product.module"
+            *ngIf="productForm.submitted && !product.team"
           >
             El equipo es requerido
           </div>
@@ -273,13 +274,13 @@
             id="stopReason"
             [(ngModel)]="product.stoppageReason"
             name="stoppageReason"
-            class="form-control">
-            <option [ngValue]="''">-- Seleccionar razón --</option>
-            <option *ngFor="let reason of stoppageReasons" [ngValue]="reason">
-              {{ reason }}
+            class="form-select"
+          >
+            <option [ngValue]="null" disabled selected>Seleccione una razón</option>
+            <option *ngFor="let b of stoppageReasons" [ngValue]="b.label">
+              {{ b.label }}
             </option>
           </select>
-          
         </div>
       </div>
     </div>
@@ -291,14 +292,12 @@
             id="status"
             [(ngModel)]="product.status"
             name="status"
-            class="form-control"
+            class="form-select"
           >
-            <option [ngValue]="''">-- Seleccionar estado --</option>
-            <option *ngFor="let statu of status" [ngValue]="statu">
-              {{ statu }}
+            <option *ngFor="let b of productionStatus" [ngValue]="b.label">
+              {{ b.label }}
             </option>
           </select>
-
         </div>
       </div>
       <div class="col-md-6">
@@ -310,7 +309,9 @@
             [(ngModel)]="product.sam"
             name="sam"
             class="form-control"
-            [class.is-invalid]="productForm.submitted && (!product.sam || product.sam <= 0)"
+            [class.is-invalid]="
+              productForm.submitted && (!product.sam || product.sam <= 0)
+            "
             required
             min="0.01"
             step="0.01"
@@ -318,62 +319,62 @@
             numericOnly
             [allowDecimal]="true"
           />
-          <div class="invalid-feedback" *ngIf="productForm.submitted && (!product.sam || product.sam <= 0)">
+          <div
+            class="invalid-feedback"
+            *ngIf="productForm.submitted && (!product.sam || product.sam <= 0)"
+          >
             El SAM es requerido y debe ser mayor a 0
           </div>
         </div>
       </div>
       <div class="row">
-      <div class="col-md-6">
-       <div class="form-group mb-3">
-        <label for="actualDeliveryDate">Fecha Entrega Real</label>
-        <input
-        type ="date"
-          id="actualDeliveryDate"
-          [(ngModel)]="product.actualDeliveryDate"
-          name="actualDeliveryDate"
-          class="form-control"
-       >
-     </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group mb-3">
-          <label for="cantidadProducida">Cantidad Confeccionada</label>
-          <input
-            placeholder="0"
-            type="number"
-            id="cantidadConfeccionada"
-            [(ngModel)]="product.quantityMade"
-            name="cantidadProducida"
-            class="form-control"
-            numericOnly>
-            
-            
-          
-           
+        <div class="col-md-6">
+          <div class="form-group mb-3">
+            <label for="actualDeliveryDate">Fecha Entrega Real</label>
+            <input
+              type="date"
+              id="actualDeliveryDate"
+              [(ngModel)]="product.actualDeliveryDate"
+              name="actualDeliveryDate"
+              class="form-control"
+            />
           </div>
-      </div>
-    </div>
-    </div>
-      
-      <div class="col-md-4">
-        <div class="form-group mb-3">
-          <label for="quantity">Total</label>
-          <input
-            type="number"
-            id="quantity"
-            [(ngModel)]="product.quantity"
-            name="quantity"
-            class="form-control"
-            [disabled]="true">
-            
+        </div>
+        <div class="col-md-6">
+          <div class="form-group mb-3">
+            <label for="cantidadProducida">Cantidad Confeccionada</label>
+            <input
+              placeholder="0"
+              type="number"
+              id="cantidadConfeccionada"
+              [(ngModel)]="product.quantityMade"
+              name="cantidadProducida"
+              class="form-control"
+              numericOnly
+            />
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="form-group mb-3">
+        <label for="quantity">Total</label>
+        <input
+          type="number"
+          id="quantity"
+          [(ngModel)]="product.quantity"
+          name="quantity"
+          class="form-control"
+          [disabled]="true"
+        />
+      </div>
+    </div>
     <div class="buttons d-flex gap-2">
       <button type="submit" class="btn btn-primary" [disabled]="loading">
         <i class="fas fa-save" *ngIf="!loading"></i>
         <i class="fas fa-spinner fa-spin" *ngIf="loading"></i>
-        {{ loading ? 'Actualizando...' : 'Actualizar OP' }}
+        {{ loading ? "Actualizando..." : "Actualizar OP" }}
       </button>
       <button
         type="button"
@@ -387,12 +388,21 @@
   </form>
 </div>
 
-<div class="modal" [ngClass]="{'show d-block': showSizeModal}" style="background-color: rgba(0,0,0,0.5);">
+<div
+  class="modal"
+  [ngClass]="{ 'show d-block': showSizeModal }"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Seleccionar Tallas y Cantidades</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeSizeModal()"></button>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="closeSizeModal()"
+        ></button>
       </div>
       <div class="modal-body">
         <!-- Navegación entre secciones -->
@@ -401,14 +411,16 @@
             type="button"
             class="btn btn-outline-primary me-2"
             [class.active]="activeSizeSection === 'kids'"
-            (click)="showKidsSizes()">
+            (click)="showKidsSizes()"
+          >
             Tallas Niños
           </button>
           <button
             type="button"
             class="btn btn-outline-primary"
             [class.active]="activeSizeSection === 'adult'"
-            (click)="showAdultSizes()">
+            (click)="showAdultSizes()"
+          >
             Tallas Adultos
           </button>
         </div>
@@ -416,37 +428,80 @@
         <!-- Sección de tallas de niños -->
         <div *ngIf="activeSizeSection === 'kids'">
           <h6 class="text-center mb-3">Tallas de Niños</h6>
-          <div *ngFor="let size of kidsSizes" class="mb-2 d-flex align-items-center">
-            <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number"  placeholder="0" min="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+          <div
+            *ngFor="let size of kidsSizes"
+            class="mb-2 d-flex align-items-center"
+          >
+            <label class="me-2" style="width: 50px">{{ size.name }}</label>
+            <input
+              type="number"
+              placeholder="0"
+              min="0"
+              [(ngModel)]="size.quantity"
+              class="form-control"
+              style="width: 100px"
+              numericOnly
+            />
           </div>
         </div>
 
         <!-- Sección de tallas de adultos -->
         <div *ngIf="activeSizeSection === 'adult'">
           <h6 class="text-center mb-3">Tallas de Adultos</h6>
-          <div *ngFor="let size of adultSizes" class="mb-2 d-flex align-items-center">
-            <label class="me-2" style="width: 50px;">{{ size.name }}</label>
-            <input type="number" min="0"  placeholder="0" [(ngModel)]="size.quantity" class="form-control" style="width: 100px;" />
+          <div
+            *ngFor="let size of adultSizes"
+            class="mb-2 d-flex align-items-center"
+          >
+            <label class="me-2" style="width: 50px">{{ size.name }}</label>
+            <input
+              type="number"
+              min="0"
+              placeholder="0"
+              [(ngModel)]="size.quantity"
+              class="form-control"
+              style="width: 100px"
+              numericOnly
+            />
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="clearSizes()">Limpiar Tallas</button>
-        <button type="button" class="btn btn-secondary" (click)="closeSizeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="saveSizes()">Guardar</button>
+        <button type="button" class="btn btn-danger" (click)="clearSizes()">
+          Limpiar Tallas
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSizeModal()"
+        >
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveSizes()">
+          Guardar
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- MODAL DE MÓDULOS -->
-<div class="modal" id="moduleModal" tabindex="-1" [ngClass]="{'show d-block': showModuleModal}" style="background-color: rgba(0,0,0,0.5);">
+<div
+  class="modal"
+  id="teamModal"
+  tabindex="-1"
+  [ngClass]="{ 'show d-block': showTeamModal }"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Seleccionar Equipo</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeModuleModal()"></button>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="closeTeamModal()"
+        ></button>
       </div>
       <div class="modal-body">
         <h6 class="text-center mb-3">Seleccionar Equipo</h6>
@@ -454,14 +509,21 @@
           <button
             type="button"
             class="list-group-item list-group-item-action"
-            *ngFor="let mod of modules"
-            (click)="selectModule(mod)">
+            *ngFor="let mod of teams"
+            (click)="selectTeam(mod)"
+          >
             {{ mod.name }} - {{ mod.description }}
           </button>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModuleModal()">Cerrar</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeTeamModal()"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
   </div>

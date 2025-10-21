@@ -60,7 +60,7 @@ export function generateProductPdf(product: any, sizeSummary: { size: string; qu
     ['Cantidad faltante', product.quantityPending || ''],
     ['% de entrega', product.deliveryPercentage ? `${product.deliveryPercentage}%` : ''],
     ['Fecha de entrega real', formatDateForDisplay(product.actualDeliveryDate)],
-    ['Equipo', product.module?.name || product.module || 'No asignado'],
+    ['Equipo', product.team?.name || product.team || 'No asignado'],
     ['SAM', product.sam || ''],
     ['SAM total', product.samTotal || ''],
     ['Número de personas', product.numPersons || ''],

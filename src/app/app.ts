@@ -1,4 +1,4 @@
-import { Component, signal, OnInit} from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -11,10 +11,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-
 export class App implements OnInit {
   protected readonly title = signal('carsil');
   showModal = false;
+  private autoLogoutTimer: any; 
 
   constructor(
     private sessionService: SessionService,
@@ -24,27 +24,37 @@ export class App implements OnInit {
 
   ngOnInit() {
     setInterval(() => {
-      if (this.authService.isLoggedIn()){
-      const inactiveTime = this.sessionService.getInactiveTime();
+      if (this.authService.isLoggedIn()) {
+        const inactiveTime = this.sessionService.getInactiveTime();
 
-      // Si lleva más de 5 min (300000 ms) sin hacer nada
-      if (inactiveTime > 30 * 60 * 1000) {
-        this.showModal = true;
+        // Si lleva más de 30 minutos inactivo 
+        if (inactiveTime > 30* 60* 1000 && !this.showModal) {
+          this.showModal = true;
+          this.startAutoLogoutTimer(); 
+        }
+      } else {
+        this.showModal = false;
       }
-    }
-    else{
-      this.showModal = false;
-    }
-  }, 10000); // revisa cada 10s
+    }, 10000); 
+  }
+
+  
+  startAutoLogoutTimer() {
+    clearTimeout(this.autoLogoutTimer);
+    this.autoLogoutTimer = setTimeout(() => {
+      this.logout(); 
+    },  5 * 60 * 1000);
   }
 
   continueSession() {
     this.sessionService.resetTimer();
     this.showModal = false;
+    clearTimeout(this.autoLogoutTimer); 
   }
 
   logout() {
     this.showModal = false;
+    clearTimeout(this.autoLogoutTimer);
     this.authService.clearSession();
     this.router.navigate(['/login']);
   }

@@ -10,14 +10,14 @@
     </div>
     
     <!-- Mostrar loading si está cargando -->
-    <div *ngIf="loading && !module.id" class="text-center">
+    <div *ngIf="loading && !team.id" class="text-center">
         <div class="spinner-border" role="status">
             <span class="sr-only">Cargando...</span>
         </div>
         <p>Cargando datos del equipo...</p>
     </div>
     
-    <form (ngSubmit)="onSubmit(moduloForm)" #moduloForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit(teamForm)" #teamForm="ngForm" novalidate>
     <div class="row">
         <div class="col-md-6">
             <div class="form-group mb-3">
@@ -25,7 +25,7 @@
                 <input 
                     type="text" 
                     id="description" 
-                    [(ngModel)]="module.description" 
+                    [(ngModel)]="team.description" 
                     name="description" 
                     class="form-control"
                     required
@@ -39,7 +39,7 @@
                     type="number" 
                     id="numPersons" 
                     name="numPersons" 
-                    [(ngModel)]="module.numPersons" 
+                    [(ngModel)]="team.numPersons" 
                     class="form-control"
                     min="1"
                     required

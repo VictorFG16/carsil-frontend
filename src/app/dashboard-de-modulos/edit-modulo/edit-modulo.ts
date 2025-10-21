@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Navbar } from '../../dashboard/navbar/navbar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ModuleService } from '../../services/module.service';
+import { TeamService } from '../../services/team.service';
 import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-edit-modulo',
@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './edit-modulo.css',
 })
 export class EditModulo implements OnInit {
-  module = {
+  team = {
     id: 0,
     name: '',
     description: '',
@@ -19,27 +19,27 @@ export class EditModulo implements OnInit {
   };
   errorMessage = '';
   loading = false;
-  moduleId: number = 0;
-  constructor(private router: Router, private moduleService: ModuleService, private route: ActivatedRoute ) {}
+  teamId: number = 0;
+  constructor(private router: Router, private teamService: TeamService, private route: ActivatedRoute ) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.moduleId = +params['id'];
-      if (this.moduleId) {
-        this.loadModulo(this.moduleId);
+      this.teamId = +params['id'];
+      if (this.teamId) {
+        this.loadTeam(this.teamId);
       }
       
   });
   }
-  loadModulo(id: number) {
+  loadTeam(id: number) {
     this.loading = true;
-    this.moduleService.getModuleById(id).subscribe({
-      next: (module: any) => {
-        this.module = {
-          id: module.id,
-          name: module.name || '',
-          description: module.description || '',
-          numPersons: module.numPersons || 0,
+    this.teamService.getTeamById(id).subscribe({
+      next: (team: any) => {
+        this.team = {
+          id: team.id,
+          name: team.name || '',
+          description: team.description || '',
+          numPersons: team.numPersons || 0,
         };
         this.loading = false;
       },
@@ -55,20 +55,20 @@ export class EditModulo implements OnInit {
     this.errorMessage = '';
     
     // Validar que todos los campos estén completos
-    if (!this.module.name || !this.module.numPersons || this.module.numPersons <= 0) {
+    if (!this.team.name || !this.team.numPersons || this.team.numPersons <= 0) {
       this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
       return;
     }
     
-    const moduleData = {
-      id: this.module.id,
-      name:this.module.name,
-      description: this.module.description,
-      numPersons: this.module.numPersons
+    const teamData = {
+      id: this.team.id,
+      name:this.team.name,
+      description: this.team.description,
+      numPersons: this.team.numPersons
     };
 
     this.loading = true;
-    this.moduleService.updateModule(this.module.id, moduleData).subscribe({
+    this.teamService.updateTeam(this.team.id, teamData).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/dashboard-de-modulos']);

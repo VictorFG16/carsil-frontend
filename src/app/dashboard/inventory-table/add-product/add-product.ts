@@ -5,8 +5,9 @@ import { Navbar } from '../../navbar/navbar';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DateUtilsService } from '../../../services/date-utils.service';
-import { ModuleService, Module } from '../../../services/module.service';
+import { TeamService, Team } from '../../../services/team.service';
 import { NumericOnlyDirective } from '../../../directives/numeric-only.directive';
+import { firstValueFrom} from 'rxjs';
 
 
 
@@ -17,6 +18,7 @@ import { NumericOnlyDirective } from '../../../directives/numeric-only.directive
   styleUrl: './add-product.css'
 })
 export class AddProduct implements OnInit {
+  brands : { key: string, label: string }[] = []
   product = {
     description: '',
     price: null as number | null,
@@ -24,60 +26,68 @@ export class AddProduct implements OnInit {
     fechaAsignada: '',
     fechaEntrada: '',
     referencia: '',
-    marca: '',
+    marca: null as string | null,
     op: '',
     camp: '',
     tipo: '',
     talla: '',
-    module: null as Module | null,
+    team: null as Team | null,
     sam: null as number | null
   };
   errorMessage = '';
 
-  // Lista de módulos disponibles
-  modules: Module[] = [];
-  showModuleModal = false;
+ 
+  teams: Team[] = [];
+  showTeamModal = false;
 
-  // Modal de tallas
+ 
   showSizeModal = false;
   activeSizeSection: 'kids' | 'adult' = 'kids';
 
-  // Tallas para niños (inicializadas con null en lugar de 0)
-  kidsSizes = [
-    { name: '2', quantity: null as number | null },
-    { name: '4', quantity: null as number | null },
-    { name: '6', quantity: null as number | null },
-    { name: '8', quantity: null as number | null },
-    { name: '10', quantity: null as number | null },
-    { name: '12', quantity: null as number | null },
-    { name: '16', quantity: null as number | null }
-  ];
+ 
+  kidsSizes: { name: string, quantity: number | null }[] = [];
+  adultSizes: { name: string, quantity: number | null }[] = [];
 
-  // Tallas para adultos (inicializadas con null en lugar de 0)
-  adultSizes = [
-    { name: 'XS', quantity: null as number | null },
-    { name: 'S', quantity: null as number | null },
-    { name: 'M', quantity: null as number | null },
-    { name: 'L', quantity: null as number | null },
-    { name: 'XL', quantity: null as number | null },
-    { name: 'XXL', quantity: null as number | null }
-  ];
+  async loadEnums() {
+    try {
+
+      const res = await firstValueFrom(this.productService.getAllEnums());
+      this.brands = res.brands.map((b: Record<string, string>) => {
+        const [key, label] = Object.entries(b)[0];
+        return { key, label };
+      });
+
+      
+      const sizes = res.sizes.map((s: Record<string, string>) => {
+        const [key, label] = Object.entries(s)[0];
+        return { key, label };
+      });
+
+      this.kidsSizes = sizes.filter((s: { key: string, label: string }) => !isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+      this.adultSizes = sizes.filter((s: { key: string, label: string }) => isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+
+    } catch (error) {
+      console.error('Error loading enums:', error);
+    }
+  }
 
   constructor(
     private readonly productService: ProductService,
     private readonly router: Router,
     private readonly dateUtils: DateUtilsService,
-    private readonly moduleService: ModuleService
+    private readonly teamService: TeamService,
   ) {}
 
   ngOnInit() {
-    this.loadModules();
+    this.loadTeams();
+    this.loadEnums();
   }
-
-  loadModules() {
-    this.moduleService.getAllModules().subscribe({
-      next: (modules) => {
-        this.modules = modules;
+ 
+  
+  loadTeams() {
+    this.teamService.getAllTeams().subscribe({
+      next: (teams) => {
+        this.teams = teams;
       },
       error: (error) => {
         console.error('Error al cargar equipos:', error);
@@ -85,17 +95,17 @@ export class AddProduct implements OnInit {
     });
   }
 
-  openModuleModal() {
-    this.showModuleModal = true;
+  openTeamModal() {
+    this.showTeamModal = true;
   }
 
-  closeModuleModal() {
-    this.showModuleModal = false;
+  closeTeamModal() {
+    this.showTeamModal = false;
   }
 
-  selectModule(mod: Module) {
-    this.product.module = mod;
-    this.closeModuleModal();
+  selectTeam(mod: Team) {
+    this.product.team = mod;
+    this.closeTeamModal();
   }
 
   // Abrir modal de tallas
@@ -116,25 +126,24 @@ export class AddProduct implements OnInit {
     this.activeSizeSection = 'kids';
   }
 
-  // Guardar tallas seleccionadas
+
   saveSizes() {
-  // Combinar tallas de niños y adultos
+  
   const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
-  // Filtrar solo tallas con cantidad válida (>0)
   const selectedSizes = combinedSizes.filter(size => size.quantity && size.quantity > 0);
 
-  // Si NO hay tallas seleccionadas, limpiar todo
+  
   if (selectedSizes.length === 0) {
     this.product.talla = '';
     this.product.quantity = 0;
   } else {
-    // Calcular el total de cantidades
+    
     this.product.quantity = selectedSizes.reduce((total, size) => total + (size.quantity || 0), 0);
-    // Guardar tallas como JSON
+   
     this.product.talla = JSON.stringify(selectedSizes);
   }
 
-  // Cerrar modal
+  
   this.closeSizeModal();
 }
 
@@ -144,7 +153,7 @@ export class AddProduct implements OnInit {
     // Validar que todos los campos estén completos
     if (!this.product.referencia || !this.product.fechaAsignada ||
         !this.product.fechaEntrada || !this.product.marca || !this.product.op ||
-        !this.product.camp || !this.product.tipo || !this.product.talla || this.product.module == null ||
+        !this.product.camp || !this.product.tipo || !this.product.talla || this.product.team == null ||
         !this.product.quantity || !this.product.price || !this.product.sam || this.product.sam <= 0) {
       this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
       return;
@@ -190,7 +199,7 @@ export class AddProduct implements OnInit {
       type: this.product.tipo,
       sizeQuantities: sizeQuantities,
       size: '', 
-      module: this.product.module,
+      team: this.product.team,
       sam: this.product.sam
     };
 
@@ -218,8 +227,8 @@ hasSizesSelected(): boolean {
 }
 
 // Método para verificar si hay equipo seleccionado
-hasModuleSelected(): boolean {
-  return !!this.product.module;
+hasTeamSelected(): boolean {
+  return !!this.product.team;
 }
 
   volverAlInventario() {

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '../services/product.service';
-import { ModuleService, Module } from '../services/module.service';
+import { TeamService, Team } from '../services/team.service';
 import { Navbar } from '../dashboard/navbar/navbar';
 import { Router } from '@angular/router';
 
@@ -16,8 +16,8 @@ export class Reportes implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   paginatedProducts: Product[] = [];
-  modules: Module[] = [];
-  selectedModuleId: number | null = null;
+  teams: Team[] = [];
+  selectedTeamId: number | null = null;
   startDate: string | null = null;
   endDate: string | null = null;
   entriesPerPage: number = 5;
@@ -28,23 +28,23 @@ export class Reportes implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private moduleService: ModuleService, private router: Router
+    private teamservice: TeamService, private router: Router
   ) {}
 
   ngOnInit() {
-    this.loadModules();
+    this.loadTeams();
   }
 
-  loadModules() {
-    this.moduleService.getAllModules().subscribe((modules: Module[]) => {
-      this.modules = modules;
+  loadTeams() {
+    this.teamservice.getAllTeams().subscribe((teams: Team[]) => {
+      this.teams = teams;
     });
   }
 
   loadProducts() {
     this.productService.getProducts().subscribe((products: Product[]) => {
       this.products = products;
-      if (this.selectedModuleId === null && !(this.startDate && this.endDate)) {
+      if (this.selectedTeamId === null && !(this.startDate && this.endDate)) {
         this.errorMessage = 'Debe seleccionar un módulo o ambas fechas (inicio y fin).';
         this.hasSearched = false;
         this.filteredProducts = [];
@@ -67,9 +67,9 @@ export class Reportes implements OnInit {
   applyFilters() {
     this.filteredProducts = this.products;
 
-    if (this.selectedModuleId !== null) {
+    if (this.selectedTeamId !== null) {
       this.filteredProducts = this.filteredProducts.filter(
-        p => p.module && p.module.id === this.selectedModuleId
+        p => p.team && p.team.id === this.selectedTeamId
       );
     }
 
@@ -119,13 +119,13 @@ export class Reportes implements OnInit {
     this.updatePaginatedProducts();
   }
 
-  getModuleName(moduleId: number) {
-    const module = this.modules.find(m => m.id === moduleId);
-    return module ? module.name : 'N/A';
+  getTeamName(teamId: number) {
+    const team = this.teams.find(m => m.id === teamId);
+    return team ? team.name : 'N/A';
   }
 
   clearFilters() {
-    this.selectedModuleId = null;
+    this.selectedTeamId = null;
     this.startDate = null;
     this.endDate = null;
     this.entriesPerPage = 5;

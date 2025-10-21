@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { DateUtilsService } from '../../services/date-utils.service';
 import { FormsModule } from '@angular/forms';
-import { ModuleService } from '../../services/module.service';
+
+
 
 
 declare var bootstrap: any; 
@@ -35,7 +36,7 @@ export class InventoryTable implements OnInit, AfterViewInit {
     private productService: ProductService, 
     private router: Router, 
     private dateUtils: DateUtilsService, 
-    moduleService: ModuleService
+    
   ) {}
 
   ngOnInit() {
@@ -91,7 +92,7 @@ export class InventoryTable implements OnInit, AfterViewInit {
           op: product.op,
           camp: product.campaign,
           tipo: product.type,
-          modulo: product.module,
+          team: product.team,
           descripcion: product.description,
           price: product.price,
           total: product.quantity
@@ -131,7 +132,7 @@ export class InventoryTable implements OnInit, AfterViewInit {
           op: product.op,
           camp: product.campaign,
           tipo: product.type,
-          modulo: product.module,
+          team: product.team,
           descripcion: product.description,
           price: product.price,
           total: product.quantity

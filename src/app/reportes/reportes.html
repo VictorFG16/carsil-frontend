@@ -12,10 +12,10 @@
 
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4 mt-4 p-2">
       <div class="d-flex align-items-center gap-2 flex-grow-1">
-        <label for="module-select" class="form-label mb-0 fw-bold">Equipo:</label>
-        <select id="module-select" class="form-select" [(ngModel)]="selectedModuleId">
+        <label for="team-select" class="form-label mb-0 fw-bold">Equipo:</label>
+        <select id="team-select" class="form-select" [(ngModel)]="selectedTeamId">
           <option [ngValue]="null">Selecciona un equipo</option>
-          <option *ngFor="let module of modules" [ngValue]="module.id">{{ module.name }}</option>
+          <option *ngFor="let team of teams" [ngValue]="team.id">{{ team.name }}</option>
         </select>
       </div>
       <div class="d-flex align-items-center gap-2 flex-grow-1">
@@ -62,7 +62,7 @@
           <td>{{ product.brand }}</td>
           <td>{{ product.op }}</td>
           <td>{{ product.assignedDate | date: 'mediumDate' }}</td>
-          <td>{{ getModuleName(product.module?.id) }}</td>
+          <td>{{ getTeamName(product.team?.id) }}</td>
         </tr>
         </ng-container>
         <tr *ngIf="hasSearched && filteredProducts.length === 0">

@@ -63,11 +63,11 @@ export class Buscador implements OnInit, OnDestroy {
       stoppageReason: product.stoppageReason ?? 'N/A',
       actualDeliveryDate: product.actualDeliveryDate ?? null,
       status: product.status ?? 'N/A',
-      numPersons: product.module?.numPersons ?? 0,
-      module: {
-        name: product.module?.name ?? 'N/A',
-        description: product.module?.description ?? 'N/A',
-        numPersons: product.module?.numPersons ?? 0
+      numPersons: product.team?.numPersons ?? 0,
+      team: {
+        name: product.team?.name ?? 'N/A',
+        description: product.team?.description ?? 'N/A',
+        numPersons: product.team?.numPersons ?? 0
       },
       sizeQuantities: product.sizeQuantities ?? {}
     };

@@ -4,10 +4,7 @@ import { Directive, HostListener, Input, Renderer2, ElementRef } from '@angular/
   selector: '[numericOnly]'
 })
 export class NumericOnlyDirective {
-  /** 
-   * Si está en true, permite también decimales (ej: campo SAM).
-   * Por defecto solo números enteros.
-   */
+
   @Input() allowDecimal: boolean = false;
 
   private tooltip: HTMLElement | null = null;
