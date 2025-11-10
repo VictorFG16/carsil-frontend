@@ -4,7 +4,7 @@
         <h2>Editar Equipo</h2>
     </div>
     
-    <!-- Mostrar mensaje de error si existe -->
+    
     <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
         {{ errorMessage }}
     </div>
@@ -39,9 +39,11 @@
                     type="number" 
                     id="numPersons" 
                     name="numPersons" 
+                    placeholder="0"
                     [(ngModel)]="team.numPersons" 
                     class="form-control"
                     min="1"
+                    numericOnly
                     required
                 />
             </div>

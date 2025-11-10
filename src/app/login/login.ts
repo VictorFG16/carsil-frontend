@@ -4,10 +4,11 @@ import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SessionService } from '../services/session.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -15,6 +16,8 @@ export class Login {
   userName = '';
   password = '';
   errorMessage = '';
+  showPassword = false;
+
 
   constructor(
     private readonly authService: AuthService,
@@ -29,7 +32,7 @@ export class Login {
         this.router.navigate(['/home']);
       },
       error: (err: HttpErrorResponse) => {
-        // Lógica de manejo de errores mejorada
+        
         if (err.error && typeof err.error === 'object' && err.error.message) {
           this.errorMessage = err.error.message;
         } else if (err.error && typeof err.error === 'string') {
@@ -49,4 +52,8 @@ export class Login {
       this.router.navigate(['/home']);
     }
   }
+  togglePasswordVisibility() {
+  this.showPassword = !this.showPassword;
+}
+
 }

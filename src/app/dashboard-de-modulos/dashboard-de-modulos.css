@@ -39,6 +39,9 @@
 .editarModulo {
   background-color: #FFC067;
 }
+.eliminar {
+  background-color: #FF746C;
+}
 
 
 .btn {
@@ -51,7 +54,12 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-
+.eliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #6c757d !important;
+  color: #fff !important;
+}
 .editarModulo:disabled {
   opacity: 0.5;
   cursor: not-allowed;

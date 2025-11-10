@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, firstValueFrom } from 'rxjs';
 import { ProductService, Product } from '../services/product.service';
-import { Navbar } from "../dashboard/navbar/navbar";
+import { Navbar } from '../dashboard/navbar/navbar';
 import { generateProductPdf } from './pdf-export-helper';
 
 @Component({
@@ -12,10 +12,10 @@ import { generateProductPdf } from './pdf-export-helper';
   standalone: true,
   imports: [CommonModule, FormsModule, Navbar],
   templateUrl: './buscador.html',
-  styleUrl: './buscador.css'
+  styleUrl: './buscador.css',
 })
 export class Buscador implements OnInit, OnDestroy {
-  searchOp: number | null = null; // 🔹 ahora el campo es numérico
+  searchOp: number | null = null; //
   searchResults: Product[] = [];
   selectedProduct: any = null;
   isLoading: boolean = false;
@@ -26,10 +26,7 @@ export class Buscador implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private productService: ProductService,
-    private router: Router,
-  ) {}
+  constructor(private productService: ProductService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadInitialData();
@@ -40,16 +37,15 @@ export class Buscador implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Normaliza un producto para que nunca tenga valores null/undefined */
   private normalizeProduct(product: any): Product {
     return {
       ...product,
       id: product.id,
-      reference: product.reference ?? 'N/A',
-      brand: product.brand ?? 'N/A',
-      op: product.op ?? 'N/A',
-      campaign: product.campaign ?? 'N/A',
-      type: product.type ?? 'N/A',
+      reference: product.reference ?? 'Sin referencia',
+      brand: product.brand ?? 'Sin marca',
+      op: product.op ?? 'Sin OP',
+      campaign: product.campaign ?? 'Sin campaña',
+      type: product.type ?? 'sin tipo',
       description: product.description ?? 'Sin descripción',
       price: product.price ?? 0,
       quantity: product.quantity ?? 0,
@@ -59,17 +55,17 @@ export class Buscador implements OnInit, OnDestroy {
       deliveryPercentage: product.deliveryPercentage ?? 0,
       sam: product.sam ?? 0,
       samTotal: product.samTotal ?? 0,
-      loadDays: product.loadDays ?? 0,
-      stoppageReason: product.stoppageReason ?? 'N/A',
+      totaLoadDays: product.team.totaLoadDays ?? 0,
+      stoppageReason: product.stoppageReason ?? 'Sin motivo',
       actualDeliveryDate: product.actualDeliveryDate ?? null,
-      status: product.status ?? 'N/A',
+      status: product.status ?? 'Sin estado',
       numPersons: product.team?.numPersons ?? 0,
       team: {
-        name: product.team?.name ?? 'N/A',
-        description: product.team?.description ?? 'N/A',
-        numPersons: product.team?.numPersons ?? 0
+        name: product.team?.name ?? 'Sin nombre',
+        description: product.team?.description ?? 'Sin descripción',
+        numPersons: product.team?.numPersons ?? 0,
       },
-      sizeQuantities: product.sizeQuantities ?? {}
+      sizeQuantities: product.sizeQuantities ?? {},
     };
   }
 
@@ -78,7 +74,10 @@ export class Buscador implements OnInit, OnDestroy {
       this.isLoading = true;
       const products = await firstValueFrom(this.productService.getProducts());
       if (products && Array.isArray(products)) {
-        this.searchResults = products.slice(-5).map((p) => this.normalizeProduct(p));
+        this.searchResults = products
+          .sort((a, b) => b.id - a.id)
+          .slice(0, 5)
+          .map((p) => this.normalizeProduct(p));
         this.selectedProduct = null;
         this.sizeSummary = [];
         this.totalQuantity = 0;
@@ -90,7 +89,6 @@ export class Buscador implements OnInit, OnDestroy {
     }
   }
 
-  /** 🔹 Nueva lógica de búsqueda por OP directamente en el backend */
   async searchByOP(): Promise<void> {
     if (!this.searchOp) {
       this.clearSearch();
@@ -100,22 +98,22 @@ export class Buscador implements OnInit, OnDestroy {
     try {
       this.isLoading = true;
       this.hasSearched = true;
-
-      console.log('Buscando productos por OP:', this.searchOp);
-      const products = await firstValueFrom(this.productService.searchProductsByOp(this.searchOp));
+      const products = await firstValueFrom(
+        this.productService.searchProductsByOp(this.searchOp)
+      );
 
       if (products && products.length > 0) {
-        this.searchResults = products.map((p: Product) => this.normalizeProduct(p));
+        this.searchResults = products.map((p: Product) =>
+          this.normalizeProduct(p)
+        );
         this.selectProduct(this.searchResults[0]);
       } else {
-        console.log('No se encontraron productos para la OP:', this.searchOp);
         this.searchResults = [];
         this.selectedProduct = null;
         this.sizeSummary = [];
         this.totalQuantity = 0;
       }
     } catch (error) {
-      console.error('Error en la búsqueda por OP:', error);
       this.searchResults = [];
       this.selectedProduct = null;
     } finally {
@@ -124,7 +122,6 @@ export class Buscador implements OnInit, OnDestroy {
   }
 
   selectProduct(product: Product): void {
-    console.log('Producto seleccionado:', product);
     this.selectedProduct = product;
     this.calculateSizeSummary();
   }
@@ -135,7 +132,8 @@ export class Buscador implements OnInit, OnDestroy {
       this.totalQuantity = 0;
       return;
     }
-    const sizeQuantities: Record<string, number> = this.selectedProduct.sizeQuantities;
+    const sizeQuantities: Record<string, number> =
+      this.selectedProduct.sizeQuantities;
     this.sizeSummary = Object.entries(sizeQuantities)
       .map(([size, quantity]) => ({ size, quantity }))
       .sort((a, b) => {
@@ -145,7 +143,10 @@ export class Buscador implements OnInit, OnDestroy {
           ? a.size.localeCompare(b.size)
           : aNum - bNum;
       });
-    this.totalQuantity = this.sizeSummary.reduce((total, item) => total + item.quantity, 0);
+    this.totalQuantity = this.sizeSummary.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
   }
 
   clearSearch(): void {
@@ -167,7 +168,11 @@ export class Buscador implements OnInit, OnDestroy {
 
   exportToPdf(): void {
     if (this.selectedProduct) {
-      generateProductPdf(this.selectedProduct, this.sizeSummary, this.totalQuantity);
+      generateProductPdf(
+        this.selectedProduct,
+        this.sizeSummary,
+        this.totalQuantity
+      );
     }
   }
 }

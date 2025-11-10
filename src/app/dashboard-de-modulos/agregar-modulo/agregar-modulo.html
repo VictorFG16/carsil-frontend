@@ -46,9 +46,11 @@
                 <label for="numPersons">Número de Personas</label>
                 <input
                     type="number"
+                    placeholder="0"
                     id="numPersons"
                     name="numPersons"
                     class="form-control"
+                    numericOnly
                     [(ngModel)]="team.numPersons"
                     required
                 />
