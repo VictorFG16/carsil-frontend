@@ -121,7 +121,7 @@
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Descripción:</span>
-          <span class="attribute-value">{{ selectedProduct.description }}</span>
+          <span class="attribute-value">{{ selectedProduct.description || 'Sin descripcion' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Campaña:</span>
@@ -157,15 +157,15 @@
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Estado:</span>
-          <span class="attribute-value">{{ selectedProduct.status || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.status || 'Sin estado' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Motivo de parada:</span>
-          <span class="attribute-value">{{ selectedProduct?.stoppageReason || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct?.stoppageReason || 'Sin motivo' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Ciclo:</span>
-          <span class="attribute-value">{{ selectedProduct.cycleCalculated || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.cycleCalculated || '0' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Cantidad confeccionada:</span>
@@ -177,12 +177,12 @@
         </div>
         <div class="attribute-row">
           <span class="attribute-label">% de entrega:</span>
-          <span class="attribute-value">{{ selectedProduct.deliveryPercentage || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.deliveryPercentage || '0'}}%</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Fecha de entrega real:</span>
           <span class="attribute-value">
-          {{ selectedProduct.actualDeliveryDate ? (selectedProduct.actualDeliveryDate | date:'dd-MM-yyyy') : 'N/A' }}
+          {{ selectedProduct.actualDeliveryDate ? (selectedProduct.actualDeliveryDate | date:'dd-MM-yyyy') : 'Sin fecha' }}
         </span>
         </div>
         <div class="attribute-row">
@@ -191,19 +191,19 @@
         </div>
         <div class="attribute-row">
           <span class="attribute-label">SAM:</span>
-          <span class="attribute-value">{{ selectedProduct.sam || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.sam || '0' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">SAM total:</span>
-          <span class="attribute-value">{{ selectedProduct.samTotal || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.samTotal || '0' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Número de personas:</span>
-          <span class="attribute-value">{{ selectedProduct.numPersons || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.numPersons || '0' }}</span>
         </div>
         <div class="attribute-row">
           <span class="attribute-label">Días de carga:</span>
-          <span class="attribute-value">{{ selectedProduct.loadDays || 'N/A' }}</span>
+          <span class="attribute-value">{{ selectedProduct.totaLoadDays || '0' }}</span>
         </div>
 
         <!-- Tabla de sub-detalles -->
