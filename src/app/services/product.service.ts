@@ -59,7 +59,9 @@ export class ProductService {
     getProducts() {
         return this.apiservice.get('/products');
     }
-
+   getActiveProducts() {
+        return this.apiservice.get('/products/active');
+    }
     getProductById(id: number) {
         return this.apiservice.get(`/products/${id}`);
     }

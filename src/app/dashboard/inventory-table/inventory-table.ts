@@ -81,7 +81,7 @@ export class InventoryTable implements OnInit, AfterViewInit {
     this.loading = true;
     this.isSearching = false;
     this.searchTerm = '';
-    this.productService.getProducts().subscribe({
+    this.productService.getActiveProducts().subscribe({
       next: (products) => {
         this.inventory = products.map((product: any) => ({
           id: product.id,
@@ -248,9 +248,6 @@ export class InventoryTable implements OnInit, AfterViewInit {
 }
 
 
-private updatePagination() {
-  
-}
 
   
   editarFila() {

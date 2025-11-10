@@ -29,25 +29,39 @@
       }
       <form (ngSubmit)="onLogin()">
         <label class="form-label">Usuario</label>
-        <input
-          type="text"
-          name="userName"
-          [(ngModel)]="userName"
-          placeholder="Ingresa tu usuario"
-          style="height: 50px; width: 400px"
-          class="form-control mb-2"
-          required
-        />
-        <label class="form-label">Contraseña</label>
-        <input
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          placeholder="Ingresa tu contraseña"
-          style="height: 50px"
-          class="form-control mb-4"
-          required
-        />
+<input
+  type="text"
+  name="userName"
+  [(ngModel)]="userName"
+  placeholder="Ingresa tu usuario"
+  class="form-control mb-2"
+  required
+  style="height: 50px; width: 100%; max-width: 400px"
+/>
+
+<div class="mb-3 position-relative" style="max-width: 400px;">
+  <label for="password" class="form-label">Contraseña</label>
+  <input
+    [type]="showPassword ? 'text' : 'password'"
+    id="password"
+    name="password"
+    [(ngModel)]="password"
+    class="form-control"
+    required
+    style="height: 50px;"
+    placeholder="Ingresa tu contraseña"
+  />
+  <button type="button"
+        (click)="togglePasswordVisibility()"
+        class="btn btn-outline-secondary btn-sm password-eye"
+        style="position: absolute; top: 70%; right: 10px; transform: translateY(-50%); z-index: 1;"
+        tabindex="-1">
+  <i class="bi"
+     [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"
+     style="font-size: 1.3rem; color: #565656;"></i>
+</button>
+</div>
+
 
         <button
           type="submit"

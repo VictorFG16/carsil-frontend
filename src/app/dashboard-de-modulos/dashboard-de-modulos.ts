@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TeamService } from '../services/team.service';
 import { CommonModule } from '@angular/common';
 import { ProgressGaugeComponent } from './progress-gauge/progress-gauge.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard-de-modulos',
@@ -16,6 +17,9 @@ export class DashboardDeModulos implements OnInit {
   loading = true;
   error: string | null = null;
   selectedTeam: number | null = null; 
+  showDeleteModal = false;
+  deleteToTeam: any = null;
+  errorMessage = '';
 
   constructor(
     private router: Router,
@@ -29,23 +33,33 @@ export class DashboardDeModulos implements OnInit {
   loadTeams() {
     this.teamService.getAllTeams().subscribe({
       next: (data: any) => {
-        this.teams = data.slice(0, 20); // Máximo 20 módulos
+        this.teams = data.slice(0, 20);
         this.loading = false;
       },
-      error: (error) => {
-        this.error = 'Error al cargar los equipos';
-        this.loading = false;
-        
-      }
+      error: (err: HttpErrorResponse) => {
+ 
+  if (err.error && err.error.mensaje) {
+    this.errorMessage = err.error.mensaje;
+  } else if (err.error && err.error.message) {
+    this.errorMessage = err.error.message;
+  } else if (err.error && typeof err.error === 'string') {
+    this.errorMessage = err.error;
+  } else if (err.message) {
+    this.errorMessage = err.message;
+  } else {
+    this.errorMessage = 'Ocurrió un error inesperado. Intente de nuevo';
+  }
+  this.loading = false; 
+}
     });
   }
 
-  getTeamColor(loadDays: number): string {
-    if (loadDays <= 0.49) {
+  getTeamColor(totaLoadDays: number): string {
+    if (totaLoadDays <= 0.49) {
       return 'red';
-    } else if (loadDays <= 0.99) {
+    } else if (totaLoadDays <= 0.99) {
       return '#FFDE21';
-    } else if (loadDays <= 7) {
+    } else if (totaLoadDays <= 7) {
       return 'green';
     } else {
       return 'red';
@@ -54,9 +68,9 @@ export class DashboardDeModulos implements OnInit {
 
   onTeamSelect(team: any) {
     if (this.selectedTeam === team) {
-      this.selectedTeam = null; // Deseleccionar si ya está seleccionado
+      this.selectedTeam = null; 
     } else {
-      this.selectedTeam = team; // Seleccionar el módulo
+      this.selectedTeam = team; 
     }
   }
   isAnyTeamSelected(): boolean {
@@ -76,6 +90,38 @@ export class DashboardDeModulos implements OnInit {
       const teamSeleccionado = this.getTeamSeleccionado();
       this.router.navigate(['/edit-modulo', teamSeleccionado.id]);
     }
+  }
+  // eliminarModulo() {
+  //   if (this.selectedTeam !== null) {
+  //     const teamSeleccionado = this.getTeamSeleccionado();
+  //     this.showDeleteModal = true;
+  //   }
+  // }
+  // confirmDelete() {
+  //   if (this.deleteToTeam) {
+  //     this.teamService.deleteTeam(this.deleteToTeam.id).subscribe({
+  //       next: () => {
+  //         this.showMessage('Producto eliminado exitosamente', 'success');
+  //         this.loadTeams();
+  //         this.selectedTeam = null;
+  //         this.closeDeleteModal();
+  //       },
+  //       error: (error) => {
+  //         this.showMessage('Error al eliminar el producto', 'error');
+  //         console.error('Error:', error);
+  //         this.closeDeleteModal();
+  //       }
+  //     });
+  //   }
+  // }
+  // closeDeleteModal() {
+  //   this.showDeleteModal = false;
+  //   this.deleteToTeam = null;
+  // }
+
+  // Método para mostrar mensajes
+  showMessage(message: string, type: string) {
+    this.errorMessage = message;
   }
 
   getTeamSeleccionado(): any {
