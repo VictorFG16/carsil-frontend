@@ -28,6 +28,13 @@
       </div>
       <button (click)="loadProducts()" class="btn btn-outline-success">Buscar</button>
       <button (click)="clearFilters()" class="btn btn-outline-secondary">Limpiar</button>
+      <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#programarModal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16">
+          <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+        </svg>
+        Programar Reporte
+      </button>
     </div>
 
     <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
@@ -89,6 +96,76 @@
           </li>
         </ul>
       </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Programar Reporte -->
+<div class="modal fade" id="programarModal" tabindex="-1" aria-labelledby="programarModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="programarModalLabel">Programar Reporte</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="programarFecha" class="form-label">Fecha de Envío</label>
+            <input type="date" class="form-control" id="programarFecha" [(ngModel)]="programarFecha" name="programarFecha">
+          </div>
+          <div class="mb-3">
+            <label for="programarHora" class="form-label">Hora de Envío</label>
+            <input type="time" class="form-control" id="programarHora" [(ngModel)]="programarHora" name="programarHora">
+          </div>
+          <div class="mb-3">
+            <label for="programarEmail" class="form-label">Correo Electrónico Destinatario</label>
+            <input type="email" class="form-control" id="programarEmail" [(ngModel)]="programarEmail" name="programarEmail">
+          </div>
+          <div *ngIf="programarError" class="alert alert-danger">{{ programarError }}</div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="limpiarModalProgramar()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="guardarProgramacion()">Guardar Programación</button>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#historialModal" (click)="verHistorial()">Ver Historial</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Historial de Programaciones -->
+<div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historialModalLabel">Historial de Programaciones</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Correo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let prog of historialProgramaciones">
+              <td>{{ prog.fecha }}</td>
+              <td>{{ prog.hora }}</td>
+              <td>{{ prog.email }}</td>
+            </tr>
+            <tr *ngIf="historialProgramaciones.length === 0">
+              <td colspan="3" class="text-center">No hay programaciones registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
     </div>
   </div>
 </div>

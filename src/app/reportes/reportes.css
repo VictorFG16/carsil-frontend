@@ -43,6 +43,17 @@
   border-color: #bd2130;
 }
 
+.btn-teal {
+  background-color: #20c997;
+  color: white;
+  border-color: #20c997;
+}
+
+.btn-teal:hover {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
 .card {
     border-radius: 1rem;
 }
