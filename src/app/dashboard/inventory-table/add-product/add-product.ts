@@ -147,13 +147,45 @@ async loadEnums() {
   this.closeSizeModal();
 }
 
+  // --- Método Auxiliar para manejo de errores simplificado ---
+  private getErrorMessage(err: HttpErrorResponse): string {
+    const defaultMsg = 'Error desconocido al agregar el producto. Por favor, inténtelo de nuevo.';
+
+    if (!err.error) return err.message || defaultMsg;
+
+    const errorBody = err.error;
+
+    if (typeof errorBody === 'string') {
+        return errorBody;
+    }
+
+    // Prioriza el mensaje de usuario de ApiError (el que envias con 'Tipo de parámetro inválido')
+    if (errorBody.message) {
+        return errorBody.message;
+    }
+
+    // Fallbacks para otros formatos que podrías tener
+    if (errorBody.mensaje) {
+        return errorBody.mensaje;
+    }
+    if (Array.isArray(errorBody.errores)) {
+        return errorBody.errores.join(' | ');
+    }
+
+    // Si es un objeto ApiError pero no tiene 'message', toma el mensaje de desarrollador.
+    if (errorBody.developerMessage) {
+      return errorBody.developerMessage;
+    }
+
+    return defaultMsg;
+  }
+  // -----------------------------------------------------------------
+
+
   onSubmit(form: NgForm) {
     this.errorMessage = '';
 
-
-
-
-    // Construir objeto sizeQuantities
+    // Construir objeto sizeQuantities (código omitido por brevedad y no ser el foco del cambio)
     const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
       if (size.quantity && size.quantity > 0) {
@@ -192,25 +224,8 @@ async loadEnums() {
       error: (err: HttpErrorResponse) => {
         console.error('Error al agregar producto:', err);
 
-        let msg = 'Error desconocido al agregar el producto. Por favor, inténtelo de nuevo.';
-
-        // Soporta todos los posibles formatos del backend (similar a agregar-modulo.ts)
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            msg = err.error;
-          } else if (err.error.message) {
-            msg = err.error.message;
-          } else if (err.error.mensaje) {
-            msg = err.error.mensaje;
-          } else if (Array.isArray(err.error.errores)) {
-            msg = err.error.errores.join(' | ');
-          } else if (err.error.developerMessage) { // Si es un objeto ApiError, toma el mensaje de usuario
-            msg = err.error.message || err.error.developerMessage;
-          }
-        } else if (err.message) {
-          msg = err.message;
-        }
-        this.errorMessage = msg;
+        // Uso del método simplificado:
+        this.errorMessage = this.getErrorMessage(err);
       }
     });
   }
