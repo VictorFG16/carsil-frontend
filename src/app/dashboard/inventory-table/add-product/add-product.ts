@@ -147,7 +147,7 @@ async loadEnums() {
   this.closeSizeModal();
 }
 
-  // --- Método Auxiliar para manejo de errores simplificado ---
+
   private getErrorMessage(err: HttpErrorResponse): string {
     const defaultMsg = 'Error desconocido al agregar el producto. Por favor, inténtelo de nuevo.';
 
@@ -158,13 +158,20 @@ async loadEnums() {
     if (typeof errorBody === 'string') {
         return errorBody;
     }
+    if (!this.dateUtils.isValidDate(this.product.fechaAsignada) ||
+        !this.dateUtils.isValidDate(this.product.fechaEntrada)) {
+      this.errorMessage = 'Las fechas ingresadas no son válidas.';
+      return;
 
-    // Prioriza el mensaje de usuario de ApiError (el que envias con 'Tipo de parámetro inválido')
     if (errorBody.message) {
         return errorBody.message;
     }
+    const fechaAsignadaDate = new Date(this.product.fechaAsignada);
+    const fechaEntradaDate = new Date(this.product.fechaEntrada);
+    if (fechaEntradaDate < fechaAsignadaDate) {
+      this.errorMessage = 'La fecha de entrada no puede ser menor que la fecha asignada.';
+      return;
 
-    // Fallbacks para otros formatos que podrías tener
     if (errorBody.mensaje) {
         return errorBody.mensaje;
     }
@@ -172,20 +179,19 @@ async loadEnums() {
         return errorBody.errores.join(' | ');
     }
 
-    // Si es un objeto ApiError pero no tiene 'message', toma el mensaje de desarrollador.
+
     if (errorBody.developerMessage) {
       return errorBody.developerMessage;
     }
 
     return defaultMsg;
   }
-  // -----------------------------------------------------------------
 
 
   onSubmit(form: NgForm) {
     this.errorMessage = '';
 
-    // Construir objeto sizeQuantities (código omitido por brevedad y no ser el foco del cambio)
+
     const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
       if (size.quantity && size.quantity > 0) {
@@ -236,12 +242,12 @@ clearSizes() {
   this.product.talla = '';
   this.product.quantity = 0;
 }
-  // Método para verificar si hay tallas seleccionadas
+
 hasSizesSelected(): boolean {
   return !!this.product.talla && this.product.talla.length > 0;
 }
 
-// Método para verificar si hay equipo seleccionado
+
 hasTeamSelected(): boolean {
   return !!this.product.team;
 }
