@@ -108,7 +108,6 @@ async loadEnums() {
     this.closeTeamModal();
   }
 
-  // Abrir modal de tallas
   openSizeModal() {
     this.showSizeModal = true;
     this.activeSizeSection = 'kids';
@@ -147,7 +146,6 @@ async loadEnums() {
   this.closeSizeModal();
 }
 
-
   private getErrorMessage(err: HttpErrorResponse): string {
     const defaultMsg = 'Error desconocido al agregar el producto. Por favor, inténtelo de nuevo.';
 
@@ -158,20 +156,10 @@ async loadEnums() {
     if (typeof errorBody === 'string') {
         return errorBody;
     }
-    if (!this.dateUtils.isValidDate(this.product.fechaAsignada) ||
-        !this.dateUtils.isValidDate(this.product.fechaEntrada)) {
-      this.errorMessage = 'Las fechas ingresadas no son válidas.';
-      return;
 
     if (errorBody.message) {
         return errorBody.message;
     }
-
-    const fechaAsignadaDate = new Date(this.product.fechaAsignada);
-    const fechaEntradaDate = new Date(this.product.fechaEntrada);
-    if (fechaEntradaDate < fechaAsignadaDate) {
-      this.errorMessage = 'La fecha de entrada no puede ser menor que la fecha asignada.';
-      return;
 
     if (errorBody.mensaje) {
         return errorBody.mensaje;
@@ -192,6 +180,13 @@ async loadEnums() {
   onSubmit(form: NgForm) {
     this.errorMessage = '';
 
+    const assigned = new Date(this.product.fechaAsignada);
+    const entry = new Date(this.product.fechaEntrada);
+
+    if (entry < assigned) {
+        this.errorMessage = 'La Fecha de Entrada no puede ser anterior a la Fecha Asignada.';
+        return;
+    }
 
     const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
@@ -231,12 +226,11 @@ async loadEnums() {
       error: (err: HttpErrorResponse) => {
         console.error('Error al agregar producto:', err);
 
-        // Uso del método simplificado:
         this.errorMessage = this.getErrorMessage(err);
       }
     });
   }
-  // Limpiar todas las tallas
+
 clearSizes() {
   this.kidsSizes.forEach(size => size.quantity = null);
   this.adultSizes.forEach(size => size.quantity = null);
