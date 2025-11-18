@@ -146,6 +146,7 @@ async loadEnums() {
   this.closeSizeModal();
 }
 
+
   private getErrorMessage(err: HttpErrorResponse): string {
     const defaultMsg = 'Error desconocido al agregar el producto. Por favor, inténtelo de nuevo.';
 
@@ -180,11 +181,35 @@ async loadEnums() {
   onSubmit(form: NgForm) {
     this.errorMessage = '';
 
+    // VALIDACIÓN DE CAMPOS OBLIGATORIOS (Solicitud del usuario)
+    if (!this.product.referencia ||
+        !this.product.fechaAsignada ||
+        !this.product.fechaEntrada ||
+        !this.product.marca ||
+        !this.product.op ||
+        !this.product.camp ||
+        !this.product.tipo ||
+        !this.product.talla ||
+        this.product.team == null ||
+        !this.product.quantity ||
+        this.product.price === null ||
+        !this.product.sam ||
+        this.product.sam <= 0) {
+      this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
+      return;
+    }
+
+    // VALIDACIÓN DE LÓGICA DE FECHAS (Solicitud del usuario)
     const assigned = new Date(this.product.fechaAsignada);
     const entry = new Date(this.product.fechaEntrada);
 
+    if (isNaN(assigned.getTime()) || isNaN(entry.getTime())) {
+        this.errorMessage = 'Las fechas ingresadas no son válidas.';
+        return;
+    }
+
     if (entry < assigned) {
-        this.errorMessage = 'La Fecha de Entrada no puede ser anterior a la Fecha Asignada.';
+        this.errorMessage = 'La Fecha de Entrada no puede ser inferior a la Fecha Asignada.';
         return;
     }
 
