@@ -166,6 +166,7 @@ async loadEnums() {
     if (errorBody.message) {
         return errorBody.message;
     }
+
     const fechaAsignadaDate = new Date(this.product.fechaAsignada);
     const fechaEntradaDate = new Date(this.product.fechaEntrada);
     if (fechaEntradaDate < fechaAsignadaDate) {
