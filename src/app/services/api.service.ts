@@ -6,10 +6,9 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // apiUrl = 'https://...'; en dev será http://localhost:8080 (environment.development.ts)
-  private readonly baseUrl = `${environment.apiUrl}/api`;
+private readonly baseUrl = `${environment.apiUrl}/api`;
 
-  constructor(private http: HttpClient) {}
+constructor(private http: HttpClient) {}
 
   get(endpoint: string, params?: any): Observable<any> {
     return this.http.get(`${this.baseUrl}${endpoint}`, { params }).pipe(
@@ -18,9 +17,12 @@ export class ApiService {
     );
   }
 
-  post(endpoint: string, data: any): Observable<any> {
+  // **CORRECCIÓN TS2322/TS2769:** Se elimina el tipo genérico (<T>) y se usa Observable<any>
+  // para resolver el conflicto de tipado al usar responseType: 'text'.
+  post(endpoint: string, data: any, options?: { responseType: 'text' | 'json' }): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}${endpoint}`, data, { headers }).pipe(
+    // Usamos 'as any' para forzar la compatibilidad con responseType: 'text'.
+    return this.http.post(`${this.baseUrl}${endpoint}`, data, { headers, ...options } as any).pipe(
       retry(1),
       catchError(this.handleError),
     );
