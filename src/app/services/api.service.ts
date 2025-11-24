@@ -17,11 +17,9 @@ constructor(private http: HttpClient) {}
     );
   }
 
-  // **CORRECCIÓN TS2322/TS2769:** Se elimina el tipo genérico (<T>) y se usa Observable<any>
-  // para resolver el conflicto de tipado al usar responseType: 'text'.
   post(endpoint: string, data: any, options?: { responseType: 'text' | 'json' }): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    // Usamos 'as any' para forzar la compatibilidad con responseType: 'text'.
+
     return this.http.post(`${this.baseUrl}${endpoint}`, data, { headers, ...options } as any).pipe(
       retry(1),
       catchError(this.handleError),
