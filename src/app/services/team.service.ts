@@ -31,7 +31,7 @@ export class TeamService {
     return this.apiService.put(`/teams/${id}`, team);
   }
 
-  // deleteTeam(id: number) {
-  //   return this.apiService.delete(`/teams/${id}`);
-  // }
+  deleteTeam(id: number) {
+    return this.apiService.delete(`/teams/${id}`);
+  }
 }

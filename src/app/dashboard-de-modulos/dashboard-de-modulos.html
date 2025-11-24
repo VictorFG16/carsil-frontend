@@ -30,7 +30,7 @@
                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
             </svg> Editar</button>
             
-             <!-- <button
+             <button
             class="btn eliminar m-3 fw-bold"
             [disabled]="!isAnyTeamSelected()"
             (click)="eliminarModulo()"
@@ -48,7 +48,7 @@
               />
             </svg>
             Eliminar
-          </button> -->
+          </button>
         <div *ngIf="loading" class="text-center">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
@@ -84,8 +84,8 @@
             <p>No hay equipos disponibles</p>
         </div>
 
-        <!-- Modal de confirmación para eliminar
-    <div class="modal-backdrop fade show" *ngIf="showDeleteModal"></div>
+        <!-- Modal de confirmación para eliminar -->
+     <div class="modal-backdrop fade show" *ngIf="showDeleteModal"></div>
     <div
       *ngIf="showDeleteModal"
       class="modal show d-block delete-component"
@@ -107,7 +107,11 @@
               seleccionado?
             </p>
             <p class="text-muted">Esta acción no se puede deshacer.</p>
+            <div *ngIf="deleteModalError" class="alert alert-danger mt-3">
+    {{ deleteModalError }}
+  </div>
           </div>
+          
           <div class="modal-footer">
             <button
               type="button"
@@ -126,5 +130,5 @@
           </div>
         </div>
       </div>
-    </div> -->
+    </div> 
 </div>
