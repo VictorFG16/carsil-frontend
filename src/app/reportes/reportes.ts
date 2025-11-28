@@ -13,7 +13,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./reportes.css']
 })
 export class Reportes implements OnInit {
-  products: Product[] = [];
   filteredProducts: Product[] = [];
   paginatedProducts: Product[] = [];
   teams: Team[] = [];
@@ -36,65 +35,63 @@ export class Reportes implements OnInit {
   }
 
   loadTeams() {
-    this.teamservice.getAllTeams().subscribe((teams: Team[]) => {
-      this.teams = teams;
+    this.teamservice.getAllTeams().subscribe({
+      next: (teams: Team[]) => {
+        this.teams = teams;
+      },
+      error: (error) => {
+        console.error('Error al cargar equipos:', error);
+        this.errorMessage = 'Error al cargar la lista de equipos.';
+      }
     });
   }
 
   loadProducts() {
-    this.productService.getProducts().subscribe((products: Product[]) => {
-      this.products = products;
-      if (this.selectedTeamId === null && !(this.startDate && this.endDate)) {
-        this.errorMessage = 'Debe seleccionar un módulo o ambas fechas (inicio y fin).';
-        this.hasSearched = false;
+    
+    if (!this.startDate || !this.endDate) {
+      this.errorMessage = 'Debe seleccionar ambas fechas (inicio y fin).';
+      this.hasSearched = false;
+      this.filteredProducts = [];
+      this.paginatedProducts = [];
+      return;
+    }
+    
+    if (new Date(this.startDate) > new Date(this.endDate)) {
+      this.errorMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin.';
+      this.hasSearched = false;
+      this.filteredProducts = [];
+      this.paginatedProducts = [];
+      return;
+    }
+
+    this.errorMessage = '';
+    
+    
+    this.productService.getProductsByDateRangeAndTeam(
+      this.startDate,
+      this.endDate,
+      this.selectedTeamId !== null ? this.selectedTeamId : undefined
+    ).subscribe({
+      next: (products: Product[]) => {
+        this.filteredProducts = products;
+        
+        this.filteredProducts.sort(
+          (a, b) => new Date(b.assignedDate).getTime() - new Date(a.assignedDate).getTime()
+        );
+
+        this.currentPage = 1;
+        this.totalPages = Math.ceil(this.filteredProducts.length / this.entriesPerPage);
+        this.updatePaginatedProducts();
+        this.hasSearched = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar productos:', error);
+        this.errorMessage = 'Error al cargar los productos. Por favor, intente nuevamente.';
         this.filteredProducts = [];
         this.paginatedProducts = [];
-        return;
-      } else if (this.startDate && this.endDate && new Date(this.startDate) > new Date(this.endDate)) {
-        this.errorMessage = 'La fecha de inicio no puede ser mayor que la fecha de fin.';
         this.hasSearched = false;
-        this.filteredProducts = [];
-        this.paginatedProducts = [];
-        return;
-      } else {
-        this.errorMessage = '';
       }
-      this.applyFilters();
-      this.hasSearched = true;
     });
-  }
-
-  applyFilters() {
-    this.filteredProducts = this.products;
-
-    if (this.selectedTeamId !== null) {
-      this.filteredProducts = this.filteredProducts.filter(
-        p => p.team && p.team.id === this.selectedTeamId
-      );
-    }
-
-    if (this.startDate) {
-      const start = new Date(this.startDate);
-      this.filteredProducts = this.filteredProducts.filter(
-        p => new Date(p.assignedDate) >= start
-      );
-    }
-
-    if (this.endDate) {
-      const end = new Date(this.endDate);
-      this.filteredProducts = this.filteredProducts.filter(
-        p => new Date(p.assignedDate) <= end
-      );
-    }
-
-    // Ordenar por fecha asignación descendente
-    this.filteredProducts.sort(
-      (a, b) => new Date(b.assignedDate).getTime() - new Date(a.assignedDate).getTime()
-    );
-
-    this.currentPage = 1;
-    this.totalPages = Math.ceil(this.filteredProducts.length / this.entriesPerPage);
-    this.updatePaginatedProducts();
   }
 
   updatePaginatedProducts() {
