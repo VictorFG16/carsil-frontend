@@ -127,10 +127,10 @@ export class DashboardDeModulos implements OnInit {
     if (this.deleteToTeam) {
       this.teamService.deleteTeam(this.deleteToTeam.id).subscribe({
         next: () => {
-          this.showMessage('Equipo eliminado exitosamente', 'success');
           this.loadTeams();
           this.selectedTeam = null;
           this.closeDeleteModal();
+          this.mostrarModalExito();
         },
         error: (err: HttpErrorResponse) => {
           this.deleteModalError = this.getErrorMessage(err);
@@ -142,6 +142,15 @@ export class DashboardDeModulos implements OnInit {
   closeDeleteModal() {
     this.showDeleteModal = false;
     this.deleteToTeam = null;
+    this.deleteModalError = '';
+  }
+
+  mostrarModalExito() {
+    const modalElement = document.getElementById('exitoModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+    }
   }
 
   // Método para mostrar mensajes

@@ -269,10 +269,10 @@ export class InventoryTable implements OnInit, AfterViewInit {
     if (this.productToDelete) {
       this.productService.deleteProduct(this.productToDelete.id).subscribe({
         next: () => {
-          this.showMessage('Producto eliminado exitosamente', 'success');
           this.loadProducts();
           this.selectedRow = null;
           this.closeDeleteModal();
+          this.mostrarModalExito();
         },
         error: (error) => {
           this.showMessage('Error al eliminar el producto', 'error');
@@ -286,6 +286,14 @@ export class InventoryTable implements OnInit, AfterViewInit {
   closeDeleteModal() {
     this.showDeleteModal = false;
     this.productToDelete = null;
+  }
+
+  mostrarModalExito() {
+    const modalElement = document.getElementById('exitoModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+    }
   }
 
   // Método para mostrar mensajes

@@ -83,7 +83,7 @@ export class EditModulo implements OnInit {
   this.teamService.updateTeam(this.team.id, teamData).subscribe({
     next: () => {
       this.loading = false;
-      this.router.navigate(['/dashboard-de-modulos']);
+      this.mostrarModalExito();
     },
     error: (err: HttpErrorResponse) => {
   console.log('Error recibido en editar:', err, err.error);
@@ -106,6 +106,18 @@ export class EditModulo implements OnInit {
 }
 
   });
+}
+
+mostrarModalExito() {
+  const modalElement = document.getElementById('exitoModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+    
+    modalElement.addEventListener('hidden.bs.modal', () => {
+      this.router.navigate(['/dashboard-de-modulos']);
+    }, { once: true });
+  }
 }
 
 
