@@ -56,6 +56,17 @@ export class ProductService {
     getProductsByDateRange(startDate: string, endDate: string) {
         return this.apiservice.get(`/products/date-range?start=${startDate}&end=${endDate}`);
     }
+    getProductsByDateRangeAndTeam(startDate?: string, endDate?: string, teamId?: number) {
+        let url = '/products/by-date-range?';
+        const params: string[] = [];
+        
+        if (startDate) params.push(`startDate=${startDate}`);
+        if (endDate) params.push(`endDate=${endDate}`);
+        if (teamId !== null && teamId !== undefined) params.push(`teamId=${teamId}`);
+        
+        url += params.join('&');
+        return this.apiservice.get(url);
+    }
     getProducts() {
         return this.apiservice.get('/products');
     }
