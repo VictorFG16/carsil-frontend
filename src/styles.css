@@ -1,2 +1,57 @@
-/* You can add global styles to this file, and also import other style files */
 
+.tooltip .tooltip-inner {
+  background-color: #2c3e50 !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  padding: 10px 14px !important;
+  border-radius: 6px !important;
+  max-width: 300px !important;
+  text-align: left !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Flechas del tooltip según posición */
+.tooltip.bs-tooltip-top .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
+  border-top-color: #2c3e50 !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
+  border-bottom-color: #2c3e50 !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
+  border-left-color: #2c3e50 !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
+  border-right-color: #2c3e50 !important;
+}
+
+.numeric-only-tooltip {
+  position: absolute;
+  top: -28px;       /* encima del input */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  animation: fadeInOut 1.5s ease forwards;
+}
+
+/* animación */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+}

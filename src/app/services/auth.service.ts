@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from "./api.service";
 import { HttpClient } from '@angular/common/http';
-import { User } from '../models/user';
 import { tap } from 'rxjs/operators';
 
 @Injectable({

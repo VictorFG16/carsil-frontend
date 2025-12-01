@@ -32,6 +32,9 @@
     background-color: #1677ff;
     color: #fff;
 }
+.buscador {
+  width: 370px
+}
 .table-header {
   margin: 20px;
 }
@@ -241,7 +244,7 @@ tbody:hover tr td:nth-child(12):hover {
   background-color: #f0f8ff;
 }
 
-/* Estilos para celdas seleccionadas - aplicado a toda la columna */
+
 td.selected-column {
   background-color: #e3f2fd !important;
   border: 2px solid #2196f3 !important;
@@ -251,4 +254,17 @@ td.selected-column {
 }
 .delete-component{
   animation: fadeIn 0.5s ease-in-out
+}
+
+.tooltip .tooltip-inner {
+  background-color: #2c3e50; 
+  color: #ffffff;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.tooltip .tooltip-arrow::before {
+  border-top-color: #2c3e50 !important;
 }

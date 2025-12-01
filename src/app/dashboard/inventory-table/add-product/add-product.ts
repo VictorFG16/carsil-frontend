@@ -5,86 +5,89 @@ import { Navbar } from '../../navbar/navbar';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DateUtilsService } from '../../../services/date-utils.service';
-import { ModuleService, Module } from '../../../services/module.service';
+import { TeamService, Team } from '../../../services/team.service';
+import { NumericOnlyDirective } from '../../../directives/numeric-only.directive';
+import { firstValueFrom} from 'rxjs';
+
+
 
 @Component({
   selector: 'app-add-product',
-  imports: [FormsModule, Navbar, CommonModule],
+  imports: [FormsModule, Navbar, CommonModule,NumericOnlyDirective],
   templateUrl: './add-product.html',
   styleUrl: './add-product.css'
 })
 export class AddProduct implements OnInit {
+  brands : { key: string, label: string }[] = []
   product = {
     description: '',
-    price: 0,
+    price: null as number | null,
     quantity: 0,
     fechaAsignada: '',
     fechaEntrada: '',
     referencia: '',
-    marca: '',
+    marca: null as string | null,
     op: '',
     camp: '',
     tipo: '',
     talla: '',
-    module: null as Module | null,
-    sam: 0
+    team: null as Team | null,
+    sam: null as number | null
   };
   errorMessage = '';
 
-  // Lista de módulos disponibles
-  modules: Module[] = [];
-  showModuleModal = false;
+ 
+  teams: Team[] = [];
+  showTeamModal = false;
 
-  // Nuevas propiedades para el modal de tallas
+ 
   showSizeModal = false;
   activeSizeSection: 'kids' | 'adult' = 'kids';
 
-  // Tallas para niños
-  kidsSizes = [
-    { name: '2', quantity: 0 },
-    { name: '4', quantity: 0 },
-    { name: '6', quantity: 0 },
-    { name: '8', quantity: 0 },
-    { name: '10', quantity: 0 },
-    { name: '12', quantity: 0 },
-    { name: '16', quantity: 0 }
-  ];
+ 
+  kidsSizes: { name: string, quantity: number | null }[] = [];
+  adultSizes: { name: string, quantity: number | null }[] = [];
 
-  // Tallas para adultos
-  adultSizes = [
-    { name: 'XS', quantity: 0 },
-    { name: 'S', quantity: 0 },
-    { name: 'M', quantity: 0 },
-    { name: 'L', quantity: 0 },
-    { name: 'XL', quantity: 0 },
-    { name: 'XXL', quantity: 0 }
-  ];
+  async loadEnums() {
+    try {
 
-  sizes = [
-    { name: 'XS', quantity: 0 },
-    { name: 'S', quantity: 0 },
-    { name: 'M', quantity: 0 },
-    { name: 'L', quantity: 0 },
-    { name: 'XL', quantity: 0 },
-    { name: 'XXL', quantity: 0 },
-    { name: 'XXXL', quantity: 0 }
-  ];
+      const res = await firstValueFrom(this.productService.getAllEnums());
+      this.brands = res.brands.map((b: Record<string, string>) => {
+        const [key, label] = Object.entries(b)[0];
+        return { key, label };
+      });
+
+      
+      const sizes = res.sizes.map((s: Record<string, string>) => {
+        const [key, label] = Object.entries(s)[0];
+        return { key, label };
+      });
+
+      this.kidsSizes = sizes.filter((s: { key: string, label: string }) => !isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+      this.adultSizes = sizes.filter((s: { key: string, label: string }) => isNaN(Number(s.label))).map((s: { key: string, label: string }) => ({ name: s.label, quantity: null }));
+
+    } catch (error) {
+      console.error('Error loading enums:', error);
+    }
+  }
 
   constructor(
-    private  readonly productService: ProductService,
-    private  readonly router: Router,
-    private  readonly dateUtils: DateUtilsService,
-    private readonly moduleService: ModuleService
+    private readonly productService: ProductService,
+    private readonly router: Router,
+    private readonly dateUtils: DateUtilsService,
+    private readonly teamService: TeamService,
   ) {}
 
   ngOnInit() {
-    this.loadModules();
+    this.loadTeams();
+    this.loadEnums();
   }
-
-  loadModules() {
-    this.moduleService.getAllModules().subscribe({
-      next: (modules) => {
-        this.modules = modules;
+ 
+  
+  loadTeams() {
+    this.teamService.getAllTeams().subscribe({
+      next: (teams) => {
+        this.teams = teams;
       },
       error: (error) => {
         console.error('Error al cargar equipos:', error);
@@ -92,56 +95,57 @@ export class AddProduct implements OnInit {
     });
   }
 
-  openModuleModal() {
-    this.showModuleModal = true;
+  openTeamModal() {
+    this.showTeamModal = true;
   }
 
-  closeModuleModal() {
-    this.showModuleModal = false;
+  closeTeamModal() {
+    this.showTeamModal = false;
   }
 
-  selectModule(mod: Module) {
-    this.product.module = mod;
-    this.closeModuleModal();
+  selectTeam(mod: Team) {
+    this.product.team = mod;
+    this.closeTeamModal();
   }
 
-  // Método para abrir el modal de tallas
+  // Abrir modal de tallas
   openSizeModal() {
     this.showSizeModal = true;
-    this.activeSizeSection = 'kids'; // Mostrar sección de niños por defecto
+    this.activeSizeSection = 'kids';
   }
 
-  // Método para cerrar el modal
   closeSizeModal() {
     this.showSizeModal = false;
   }
 
-  // Cambiar a sección de tallas de adultos
   showAdultSizes() {
     this.activeSizeSection = 'adult';
   }
 
-  // Cambiar a sección de tallas de niños
   showKidsSizes() {
     this.activeSizeSection = 'kids';
   }
 
-  // Método para guardar las tallas seleccionadas
+
   saveSizes() {
-    // Combinar tallas de niños y adultos
-    const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
-    // Filtrar tallas con cantidad > 0
-    const selectedSizes = combinedSizes.filter(size => size.quantity > 0);
+  
+  const combinedSizes = [...this.kidsSizes, ...this.adultSizes];
+  const selectedSizes = combinedSizes.filter(size => size.quantity && size.quantity > 0);
 
-    // Calcular total quantity
-    this.product.quantity = selectedSizes.reduce((total, size) => total + size.quantity, 0);
-
-    // Serializar tallas en JSON para el campo talla
+  
+  if (selectedSizes.length === 0) {
+    this.product.talla = '';
+    this.product.quantity = 0;
+  } else {
+    
+    this.product.quantity = selectedSizes.reduce((total, size) => total + (size.quantity || 0), 0);
+   
     this.product.talla = JSON.stringify(selectedSizes);
-
-    // Cerrar modal
-    this.closeSizeModal();
   }
+
+  
+  this.closeSizeModal();
+}
 
   onSubmit(form: NgForm) {
     this.errorMessage = '';
@@ -149,37 +153,35 @@ export class AddProduct implements OnInit {
     // Validar que todos los campos estén completos
     if (!this.product.referencia || !this.product.fechaAsignada ||
         !this.product.fechaEntrada || !this.product.marca || !this.product.op ||
-        !this.product.camp || !this.product.tipo || !this.product.talla || this.product.module == null ||
+        !this.product.camp || !this.product.tipo || !this.product.talla || this.product.team == null ||
         !this.product.quantity || !this.product.price || !this.product.sam || this.product.sam <= 0) {
       this.errorMessage = 'Todos los campos son obligatorios. Por favor complete todos los campos.';
       return;
     }
 
-    // Validar que las fechas sean válidas
+    // Validar fechas
     if (!this.dateUtils.isValidDate(this.product.fechaAsignada) ||
         !this.dateUtils.isValidDate(this.product.fechaEntrada)) {
       this.errorMessage = 'Las fechas ingresadas no son válidas.';
       return;
     }
 
-    // Validar que fechaEntrada no sea menor que fechaAsignada
     const fechaAsignadaDate = new Date(this.product.fechaAsignada);
     const fechaEntradaDate = new Date(this.product.fechaEntrada);
-    // fechaEntrada debe ser igual o mayor que fechaAsignada
     if (fechaEntradaDate < fechaAsignadaDate) {
       this.errorMessage = 'La fecha de entrada no puede ser menor que la fecha asignada.';
       return;
     }
 
-    // Construir sizeQuantities combinando kidsSizes y adultSizes
-    const sizeQuantities: {[key: string]: number} = {};
+    // Construir objeto sizeQuantities
+    const sizeQuantities: { [key: string]: number } = {};
     this.kidsSizes.forEach(size => {
-      if (size.quantity > 0) {
+      if (size.quantity && size.quantity > 0) {
         sizeQuantities[size.name] = size.quantity;
       }
     });
     this.adultSizes.forEach(size => {
-      if (size.quantity > 0) {
+      if (size.quantity && size.quantity > 0) {
         sizeQuantities[size.name] = size.quantity;
       }
     });
@@ -196,8 +198,8 @@ export class AddProduct implements OnInit {
       campaign: this.product.camp,
       type: this.product.tipo,
       sizeQuantities: sizeQuantities,
-      size: '', // campo size puede quedar vacío o eliminarse si backend lo permite
-      module: this.product.module, // enviar el módulo seleccionado o creado
+      size: '', 
+      team: this.product.team,
       sam: this.product.sam
     };
 
@@ -212,9 +214,24 @@ export class AddProduct implements OnInit {
       }
     });
   }
+  // Limpiar todas las tallas
+clearSizes() {
+  this.kidsSizes.forEach(size => size.quantity = null);
+  this.adultSizes.forEach(size => size.quantity = null);
+  this.product.talla = '';
+  this.product.quantity = 0;
+}
+  // Método para verificar si hay tallas seleccionadas
+hasSizesSelected(): boolean {
+  return !!this.product.talla && this.product.talla.length > 0;
+}
+
+// Método para verificar si hay equipo seleccionado
+hasTeamSelected(): boolean {
+  return !!this.product.team;
+}
 
   volverAlInventario() {
     this.router.navigate(['/dashboard']);
   }
-
 }

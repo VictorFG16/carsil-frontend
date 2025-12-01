@@ -40,3 +40,26 @@
     justify-content: end;
     margin-bottom: 20px;
  }
+  /* Botón verde cuando está seleccionado */
+.btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+}
+
+.btn-success:hover {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+/* Mantener el outline gris cuando no está seleccionado */
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+  background-color: white;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}

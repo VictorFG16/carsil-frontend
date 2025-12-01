@@ -1,0 +1,4 @@
+- [x] Agregar botón "Programar Envío" en reportes.html justo debajo del botón "Limpiar"
+- [x] Agregar modal con campos para fecha, hora y correo destino en reportes.html
+- [x] Agregar propiedades en reportes.ts para manejar los campos del modal
+- [x] Agregar método en reportes.ts para programar el envío

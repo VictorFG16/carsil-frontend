@@ -15,7 +15,7 @@ export interface Product {
   campaign: string;
   type: string;
   size: string;
-  module: any; // Cambiado a any para manejar objeto o string
+  team: any; 
   status?: string;
   sizeQuantities?: Record<string, number>;
   stoppageReason : string;
@@ -39,11 +39,19 @@ export interface Product {
 export class ProductService {
     constructor(private apiservice: ApiService) {}
 
+    getAllEnums() {
+        return this.apiservice.get('/products/enums');
+    }
+
     searchProducts(q: string) {
         return this.apiservice.get(`/products/search?q=${q}`);
     }
-    getProductsByModule(moduleId: number) {
-        return this.apiservice.get(`/products/module/${moduleId}`);
+    searchProductsByOp(op: number) {
+        return this.apiservice.get(`/products/by-op/${op}`);
+    }
+
+    getProductsByTeam(teamId: number) {
+        return this.apiservice.get(`/products/by-team/${teamId}`);
     }
     getProductsByDateRange(startDate: string, endDate: string) {
         return this.apiservice.get(`/products/date-range?start=${startDate}&end=${endDate}`);
@@ -51,7 +59,9 @@ export class ProductService {
     getProducts() {
         return this.apiservice.get('/products');
     }
-
+   getActiveProducts() {
+        return this.apiservice.get('/products/active');
+    }
     getProductById(id: number) {
         return this.apiservice.get(`/products/${id}`);
     }
