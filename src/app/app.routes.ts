@@ -9,17 +9,17 @@ import { EditModulo } from './dashboard-de-modulos/edit-modulo/edit-modulo';
 import { Buscador } from './buscador/buscador';
 import { AgregarModulo } from './dashboard-de-modulos/agregar-modulo/agregar-modulo';
 import { Reportes } from './reportes/reportes';
-
+import { ModuleUsers } from './module-users/module-users';
+import { AddUser } from './module-users/add-user/add-user';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Login },
   { path: 'login', component: Login },
 
-  //  Home protegido
-  { path: 'home', component: Home, canActivate: [AuthGuard] },
 
-  //  Todas las demás rutas protegidas
+//  Todas las demás rutas protegidas
+  { path: 'home', component: Home, canActivate: [AuthGuard] },
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'add-product', component: AddProduct, canActivate: [AuthGuard] },
   { path: 'edit-product/:id', component: EditProduct, canActivate: [AuthGuard] },
@@ -28,6 +28,7 @@ export const routes: Routes = [
   { path: 'agregar-modulo', component: AgregarModulo, canActivate: [AuthGuard] },
   { path: 'buscador', component: Buscador, canActivate: [AuthGuard] },
   { path: 'reportes', component: Reportes, canActivate: [AuthGuard] },
-
+  { path: 'module-users', component: ModuleUsers, canActivate: [AuthGuard] },
+  { path: 'module-users/add-user', component: AddUser, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];

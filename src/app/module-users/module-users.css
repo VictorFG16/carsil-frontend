@@ -1,0 +1,207 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container-todo{
+  padding-top: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.titulo {
+  text-align: center;
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 20px 0 5px 0;
+  background-color: #1677ff;
+  color: #fff;
+}
+
+.buscador-container {
+  position: relative;
+  width: 370px;
+  display: inline-block;
+  margin: 15px;
+}
+
+.buscador-container input {
+  padding-right: 40px;
+}
+
+.icono-buscar {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.agregar {
+  background-color: #80EF80;
+}
+
+.editar {
+  background-color: #FFC067;
+}
+
+.eliminar {
+  background-color: #FF746C;
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #6c757d !important;
+  color: #fff !important;
+}
+
+.btn-disabled:hover {
+  opacity: 0.5;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:not(.btn-disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.editar:disabled,
+.eliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #6c757d !important;
+  color: #fff !important;
+}
+
+.editar:disabled:hover,
+.eliminar:disabled:hover {
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+.table-container {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 0 20px 0;
+  margin: 20px auto;
+  width: 95%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+table {
+  width: 97%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+th, td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+  text-align: left;
+}
+
+td {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Efecto hover individual para cada celda */
+td:hover {
+  background-color: #f0f8ff;
+}
+
+/* Efecto para toda la fila al hacer hover */
+tbody:hover td {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Cuando se hace hover en cualquier celda de la fila, todas las celdas se elevan */
+tbody tr:hover td:nth-child(1),
+tbody:hover tr td:nth-child(1):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  background-color: #f0f8ff;
+}
+
+tbody tr:hover td:nth-child(2),
+tbody:hover tr td:nth-child(2):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  background-color: #f0f8ff;
+}
+
+tbody tr:hover td:nth-child(3),
+tbody:hover tr td:nth-child(3):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  background-color: #f0f8ff;
+}
+
+/* Estilos para fila seleccionada */
+tbody tr.selected td {
+  background-color: #e3f2fd !important;
+  border-left: 3px solid #2196f3;
+}
+
+tbody tr.selected td:first-child {
+  border-left: 4px solid #2196f3;
+}
+
+td.selected-column {
+  background-color: #e3f2fd !important;
+  border: 2px solid #2196f3 !important;
+  transform: translateY(-3px);
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+  z-index: 3;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+.tooltip .tooltip-inner {
+  background-color: #2c3e50; 
+  color: #ffffff;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.tooltip .tooltip-arrow::before {
+  border-top-color: #2c3e50 !important;
+}
