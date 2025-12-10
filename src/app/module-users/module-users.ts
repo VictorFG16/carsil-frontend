@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Navbar } from '../dashboard/navbar/navbar';
 import { Router } from '@angular/router';
 import { UserService, User } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 
 declare var bootstrap: any;
@@ -21,14 +22,20 @@ export class ModuleUsers implements OnInit, AfterViewInit {
   showDeleteModal = false;
   userToDelete: User | null = null;
   errorMessage = '';
+  currentUserName: string | null = null;
+  currentUserId: number | null = null;
+  currentUser: User | null = null;
   private tooltipList: any[] = [];
 
   constructor(
     private userService: UserService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit() {
+    this.currentUserName = localStorage.getItem('userName');
+    this.loadCurrentUser();
     this.loadUsers();
   }
 
@@ -39,6 +46,7 @@ export class ModuleUsers implements OnInit, AfterViewInit {
   }
 
   initializeTooltips() {
+    // Destruir TODOS los tooltips anteriores
     this.tooltipList.forEach(tooltip => {
       try {
         tooltip.dispose();
@@ -46,9 +54,11 @@ export class ModuleUsers implements OnInit, AfterViewInit {
     });
     this.tooltipList = [];
 
+    // Remover elementos tooltip del DOM
     const existingTooltips = document.querySelectorAll('.tooltip');
     existingTooltips.forEach(tooltip => tooltip.remove());
 
+    // Crear nuevos tooltips
     const tooltipTriggerList = [].slice.call(
       document.querySelectorAll('[data-bs-toggle="tooltip"]')
     );
@@ -58,6 +68,20 @@ export class ModuleUsers implements OnInit, AfterViewInit {
         html: true
       });
     });
+  }
+
+  loadCurrentUser() {
+    if (this.currentUserName) {
+      this.authService.getCurrentUser().subscribe({
+        next: (user: any) => {
+          this.currentUserId = user.id;
+          this.currentUser = user;
+        },
+        error: (err) => {
+          console.error('Error al cargar usuario actual:', err);
+        }
+      });
+    }
   }
 
   loadUsers() {
@@ -82,20 +106,68 @@ export class ModuleUsers implements OnInit, AfterViewInit {
     } else {
       this.selectedRow = index;
     }
+    
+    // Destruir todos los tooltips antes de reinicializar
+    this.destroyAllTooltips();
+    
+    // Reinicializar tooltips después de cambiar la selección
+    setTimeout(() => {
+      this.initializeTooltips();
+    }, 50);
+  }
+
+  private destroyAllTooltips() {
+    // Destruir TODOS los tooltips anteriores
+    this.tooltipList.forEach(tooltip => {
+      try {
+        tooltip.hide();
+        tooltip.dispose();
+      } catch (e) {
+        // Ignorar errores
+      }
+    });
+    this.tooltipList = [];
+
+    // Remover elementos tooltip del DOM
+    const existingTooltips = document.querySelectorAll('.tooltip');
+    existingTooltips.forEach(tooltip => tooltip.remove());
   }
 
   isAnyRowSelected(): boolean {
     return this.selectedRow !== null;
   }
 
+  isCurrentUserSelected(): boolean {
+    if (this.selectedRow !== null && this.currentUserId !== null) {
+      return this.users[this.selectedRow]?.id === this.currentUserId;
+    }
+    return false;
+  }
+
+  canDeleteSelectedUser(): boolean {
+    return this.isAnyRowSelected() && !this.isCurrentUserSelected();
+  }
+
   agregarUsuario() {
     this.router.navigate(['/module-users/add-user']);
   }
 
-  eliminarFila() {
+  editarUsuario() {
     if (this.selectedRow !== null) {
+      const userId = this.users[this.selectedRow].id;
+      this.router.navigate(['/module-users/edit-user', userId]);
+    }
+  }
+
+  eliminarFila() {
+    if (this.selectedRow !== null && !this.isCurrentUserSelected()) {
       this.userToDelete = this.users[this.selectedRow];
       this.showDeleteModal = true;
+    } else if (this.isCurrentUserSelected()) {
+      this.errorMessage = 'No puedes eliminar tu propio usuario mientras estás conectado';
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 5000);
     }
   }
 
