@@ -11,6 +11,7 @@ import { AgregarModulo } from './dashboard-de-modulos/agregar-modulo/agregar-mod
 import { Reportes } from './reportes/reportes';
 import { ModuleUsers } from './module-users/module-users';
 import { AddUser } from './module-users/add-user/add-user';
+import { EditUser } from './module-users/edit-user/edit-user';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'reportes', component: Reportes, canActivate: [AuthGuard] },
   { path: 'module-users', component: ModuleUsers, canActivate: [AuthGuard] },
   { path: 'module-users/add-user', component: AddUser, canActivate: [AuthGuard] },
+  { path: 'module-users/edit-user/:id', component: EditUser, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];

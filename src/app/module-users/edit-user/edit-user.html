@@ -1,10 +1,16 @@
 <app-navbar></app-navbar>
 <div class="container mt-4">
   <div class="titulo bg-primary text-white p-3 mb-4">
-    <h2>Crear Usuario</h2>
+    <h2>Editar Usuario</h2>
   </div>
 
-  <form (ngSubmit)="onSubmit(userForm)" #userForm="ngForm" novalidate>
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <form *ngIf="!loading" (ngSubmit)="onSubmit(userForm)" #userForm="ngForm" novalidate>
     <div class="alert alert-danger" *ngIf="errorMessage">
       {{ errorMessage }}
     </div>
@@ -68,10 +74,7 @@
             class="form-select"
             [class.is-invalid]="userForm.submitted && !user.role"
             required
-          > 
-          <option [ngValue]="null" disabled selected>
-              Seleccione un rol
-            </option>
+          >
             <option *ngFor="let role of roles" [value]="role.value">
               {{ role.label }}
             </option>
@@ -84,7 +87,7 @@
 
       <div class="col-md-6">
         <div class="form-group mb-3">
-          <label for="password">Contraseña <span class="text-danger">*</span></label>
+          <label for="password">Nueva Contraseña (opcional)</label>
           <div class="input-group">
             <input
               [type]="showPassword ? 'text' : 'password'"
@@ -92,9 +95,8 @@
               [(ngModel)]="user.password"
               name="password"
               class="form-control"
-              [class.is-invalid]="(userForm.submitted && !user.password) || passwordError"
-              required
-              minlength="7"
+              [class.is-invalid]="passwordError"
+              placeholder="Dejar en blanco para mantener la actual"
               (blur)="validatePassword()"
               (input)="validatePassword()"
             />
@@ -113,20 +115,18 @@
               </svg>
             </button>
           </div>
-          <div class="invalid-feedback d-block" *ngIf="userForm.submitted && !user.password">
-            La contraseña es requerida
-          </div>
           <div class="invalid-feedback d-block" *ngIf="passwordError">
             {{ passwordError }}
           </div>
+          <small class="form-text text-muted">Mínimo 7 caracteres si desea cambiarla</small>
         </div>
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" *ngIf="user.password && user.password.length > 0">
       <div class="col-md-6">
         <div class="form-group mb-3">
-          <label for="confirmPassword">Confirmar Contraseña <span class="text-danger">*</span></label>
+          <label for="confirmPassword">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
           <div class="input-group">
             <input
               [type]="showConfirmPassword ? 'text' : 'password'"
@@ -134,8 +134,7 @@
               [(ngModel)]="confirmPassword"
               name="confirmPassword"
               class="form-control"
-              [class.is-invalid]="(userForm.submitted && !confirmPassword) || confirmPasswordError"
-              required
+              [class.is-invalid]="confirmPasswordError"
               (blur)="validateConfirmPassword()"
               (input)="validateConfirmPassword()"
             />
@@ -154,18 +153,16 @@
               </svg>
             </button>
           </div>
-          <div class="invalid-feedback d-block" *ngIf="userForm.submitted && !confirmPassword">
-            Debe confirmar la contraseña
-          </div>
           <div class="invalid-feedback d-block" *ngIf="confirmPasswordError">
             {{ confirmPasswordError }}
           </div>
         </div>
       </div>
     </div>
+
     <div class="d-flex gap-2 mt-4 justify-content-end align-items-end">
         <button type="submit" class="btn btn-primary">
-            Guardar Usuario
+            Actualizar Usuario
         </button>
         <button type="button" class="btn btn-secondary" (click)="volverAlHome()">
             Cancelar
@@ -184,7 +181,7 @@
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
             <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
           </svg>
-          ¡Usuario Creado Exitosamente!
+          ¡Usuario Actualizado Exitosamente!
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -193,7 +190,7 @@
           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
           <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
         </svg>
-        <p class="mb-0">El usuario ha sido creado correctamente.</p>
+        <p class="mb-0">El usuario ha sido actualizado correctamente.</p>
       </div>
       <div class="modal-footer justify-content-center">
         <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">Aceptar</button>

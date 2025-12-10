@@ -9,6 +9,46 @@
       Volver al home
     </button>
 
+    <!-- Sección de Usuario Actual -->
+    <div class="current-user-section mb-4 mx-3" *ngIf="currentUser">
+      <div class="card border-success">
+        <div class="card-header bg-success text-white d-flex align-items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-check me-2" viewBox="0 0 16 16">
+            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+            <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
+          </svg>
+          <strong>Usuario Conectado Actualmente</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <p class="mb-1"><strong>Usuario:</strong></p>
+              <p class="text-primary">{{ currentUser.name }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="mb-1"><strong>Email:</strong></p>
+              <p class="text-primary">{{ currentUser.email }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="mb-1"><strong>Rol:</strong></p>
+              <p class="text-primary">
+                <span class="badge bg-info">
+                  {{ currentUser.role === 'USER' ? 'User' : (currentUser.role === 'FULL_ACCESS' ? 'Full Access' : 'Recipient') }}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div class="alert alert-info mb-0 mt-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle me-2" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+            </svg>
+            <small>Este es tu usuario actual. No puedes eliminarte mientras estés conectado.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="table-container">
       <div class="header">
         <div class="titulo bg-primary">
@@ -23,11 +63,50 @@
           Agregar Usuario
         </button>
 
-        <div class="d-inline-block tooltip-eliminar-wrapper"
+        <div class="d-inline-block tooltip-editar-wrapper"
           [attr.data-bs-toggle]="!isAnyRowSelected() ? 'tooltip' : null"
           [attr.data-bs-placement]="'top'"
-          [attr.title]="!isAnyRowSelected() ? 'Debes seleccionar una fila de la tabla para poder eliminar. Haz clic en cualquier fila para seleccionarla.' : ''">
-          <button class="btn eliminar m-3 fw-bold" [disabled]="!isAnyRowSelected()" [class.disabled]="!isAnyRowSelected()" (click)="eliminarFila()">
+          [attr.title]="
+            !isAnyRowSelected()
+              ? 'Debes seleccionar una fila de la tabla para poder editar. Haz clic en cualquier fila para seleccionarla.'
+              : ''
+          ">
+          <button class="btn editar  m-3 fw-bold" [disabled]="!isAnyRowSelected()" [class.disabled]="!isAnyRowSelected()" (click)="editarUsuario()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-pencil-square"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+              />
+              <path
+                fill-rule="evenodd"
+                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
+              />
+            </svg>
+            Editar
+          </button>
+        </div>
+
+        <div
+          class="d-inline-block tooltip-eliminar-wrapper"
+          [attr.data-bs-toggle]="!canDeleteSelectedUser() ? 'tooltip' : null"
+          [attr.data-bs-placement]="'top'"
+          [attr.title]="
+            !isAnyRowSelected()
+              ? 'Debes seleccionar una fila de la tabla para poder eliminar. Haz clic en cualquier fila para seleccionarla.'
+              : (isCurrentUserSelected() ? 'No puedes eliminar tu propio usuario mientras estás conectado' : '')
+          ">
+          <button
+            class="btn eliminar m-3 fw-bold"
+            [disabled]="!canDeleteSelectedUser()"
+            [class.disabled]="!canDeleteSelectedUser()"
+            (click)="eliminarFila()"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
               <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
@@ -44,6 +123,7 @@
       </div>
 
       <div *ngIf="error" class="alert alert-danger m-3">{{ error }}</div>
+      <div *ngIf="errorMessage" class="alert alert-warning m-3">{{ errorMessage }}</div>
 
       <div *ngIf="!loading && !error" class="table-responsive">
         <table class="table table-hover">
@@ -51,6 +131,7 @@
             <tr>
               <th>Usuario</th>
               <th>Email</th>
+              <th>Rol</th>
             </tr>
           </thead>
           <tbody>
@@ -58,7 +139,8 @@
               [class.selected]="selectedRow === i" 
               (click)="selectRow(i)">
               <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>             
+              <td>{{ user.email }}</td>       
+              <td>{{ user.role }}</td>      
             </tr>
           </tbody>
         </table>
