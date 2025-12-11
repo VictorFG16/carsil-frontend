@@ -245,7 +245,7 @@ async loadEnums() {
     this.productService.createProduct(productData).subscribe({
       next: (response) => {
         console.log('Producto agregado:', response);
-        this.router.navigate(['/dashboard']);
+        this.mostrarModalExito();
       },
 
       error: (err: HttpErrorResponse) => {
@@ -254,6 +254,18 @@ async loadEnums() {
         this.errorMessage = this.getErrorMessage(err);
       }
     });
+  }
+
+  mostrarModalExito() {
+    const modalElement = document.getElementById('exitoModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+      
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.router.navigate(['/dashboard']);
+      }, { once: true });
+    }
   }
 
 clearSizes() {

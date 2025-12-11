@@ -94,7 +94,7 @@ constructor(private router: Router, private teamService: TeamService) {}
   this.teamService.createTeam(teamData).subscribe({
     next: (response) => {
       this.loading = false;
-      this.router.navigate(['/dashboard-de-modulos']);
+      this.mostrarModalExito();
     },
     error: (err: HttpErrorResponse) => {
 
@@ -103,5 +103,17 @@ constructor(private router: Router, private teamService: TeamService) {}
       this.loading = false;
     }
   });
+}
+
+mostrarModalExito() {
+  const modalElement = document.getElementById('exitoModal');
+  if (modalElement) {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
+    
+    modalElement.addEventListener('hidden.bs.modal', () => {
+      this.router.navigate(['/dashboard-de-modulos']);
+    }, { once: true });
+  }
 }
 }

@@ -29,7 +29,7 @@ export class Buscador implements OnInit, OnDestroy {
   constructor(private productService: ProductService, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadInitialData();
+    // No cargar datos iniciales
   }
 
   ngOnDestroy(): void {
@@ -67,26 +67,6 @@ export class Buscador implements OnInit, OnDestroy {
       },
       sizeQuantities: product.sizeQuantities ?? {},
     };
-  }
-
-  async loadInitialData(): Promise<void> {
-    try {
-      this.isLoading = true;
-      const products = await firstValueFrom(this.productService.getProducts());
-      if (products && Array.isArray(products)) {
-        this.searchResults = products
-          .sort((a, b) => b.id - a.id)
-          .slice(0, 5)
-          .map((p) => this.normalizeProduct(p));
-        this.selectedProduct = null;
-        this.sizeSummary = [];
-        this.totalQuantity = 0;
-      }
-    } catch (error) {
-      console.error('Error al cargar datos iniciales:', error);
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   async searchByOP(): Promise<void> {

@@ -327,13 +327,25 @@ export class EditProduct implements OnInit {
     this.productService.updateProduct(this.product.id, productData).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/dashboard']);
+        this.mostrarModalExito();
       },
       error: () => {
         this.errorMessage = 'Error al actualizar el producto. Por favor intente nuevamente.';
         this.loading = false;
       }
     });
+  }
+
+  mostrarModalExito() {
+    const modalElement = document.getElementById('exitoModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      modal.show();
+      
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.router.navigate(['/dashboard']);
+      }, { once: true });
+    }
   }
   // Limpiar todas las tallas
 clearSizes() {

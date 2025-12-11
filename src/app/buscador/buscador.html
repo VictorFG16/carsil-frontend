@@ -39,7 +39,7 @@
 
     <div class="results-table-container" *ngIf="searchResults.length > 0">
       <div class="results-info">
-        <span class="results-count">Mostrando los últimos {{ searchResults.length }} registros de OP</span>
+        <span class="results-count">{{ searchResults.length }} resultado(s) encontrado(s)</span>
       </div>
       <table class="results-table">
         <thead>
@@ -65,6 +65,17 @@
       </table>
     </div>
 
+
+    <!-- Estado inicial (sin búsqueda) -->
+    <div class="initial-state" *ngIf="!hasSearched && !isLoading && searchResults.length === 0">
+      <i class="fas fa-clipboard-list"></i>
+      <h3>Buscar Orden de Producción</h3>
+      <p>Ingresa el número de OP en el campo de búsqueda para consultar los detalles de la orden de producción.</p>
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <span>El número de OP debe tener 7 dígitos</span>
+      </div>
+    </div>
 
     <!-- Estado de carga -->
     <div class="loading-state" *ngIf="isLoading">
